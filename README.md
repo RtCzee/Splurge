@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/Splurge_Logo.jpeg" alt="Splurge Logo" width="330"/>
+  <img src="Assets/Splurge_Logo.jpeg" alt="Splurge Logo" width="330"/>
 </p>
 
 <h1 align="center">Splurge</h1>
