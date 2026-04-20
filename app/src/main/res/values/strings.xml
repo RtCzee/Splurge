@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Splurge</string>
+    <string name="add_goal">Add Goal</string>
 </resources>
