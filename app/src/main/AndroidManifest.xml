@@ -12,19 +12,19 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Splurge">
         <activity
-            android:name=".Profile"
+            android:name=".ui.profile.Profile"
             android:exported="false" />
         <activity
-            android:name=".Goals"
+            android:name=".ui.goals.Goals"
             android:exported="false" />
         <activity
-            android:name=".Budgets"
+            android:name=".ui.budgets.Budgets"
             android:exported="false" />
         <activity
-            android:name=".Transactions"
+            android:name=".ui.transactions.Transactions"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.main.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
