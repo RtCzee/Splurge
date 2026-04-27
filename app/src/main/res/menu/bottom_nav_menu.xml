@@ -6,15 +6,15 @@
         android:title="Dashboard" />
     <item
         android:id="@+id/navigation_transactions"
-        android:icon="@android:drawable/ic_menu_view"
+        android:icon="@android:drawable/ic_menu_agenda"
         android:title="Transactions" />
     <item
         android:id="@+id/navigation_budgets"
-        android:icon="@android:drawable/ic_menu_agenda"
+        android:icon="@android:drawable/ic_menu_save"
         android:title="Budgets" />
     <item
         android:id="@+id/navigation_goals"
-        android:icon="@android:drawable/ic_menu_save"
+        android:icon="@android:drawable/ic_menu_compass"
         android:title="Goals" />
     <item
         android:id="@+id/navigation_profile"
