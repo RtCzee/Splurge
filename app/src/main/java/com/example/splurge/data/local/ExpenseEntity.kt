@@ -1,0 +1,33 @@
+package com.example.splurge.data.local
+
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
+@Entity(
+    tableName = "expenses",
+    foreignKeys = [
+        ForeignKey(
+            entity = CategoryEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["categoryId"],
+            onDelete = ForeignKey.RESTRICT
+        )
+    ],
+    indices = [
+        Index(value = ["categoryId"]),
+        Index(value = ["date"])
+    ]
+)
+data class ExpenseEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val amount: Double,
+    val date: String,
+    val startTime: String,
+    val endTime: String,
+    val description: String,
+    val categoryId: Long,
+    val photoUri: String? = null
+)
+
