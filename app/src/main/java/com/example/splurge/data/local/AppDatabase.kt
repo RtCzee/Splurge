@@ -4,15 +4,23 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 /**
  * Room database backing all persistent finance data in the app.
  */
 @Database(
-    entities = [CategoryEntity::class, ExpenseEntity::class, BudgetGoalEntity::class, SavingsGoalEntity::class],
-    version = 2,
+    entities = [
+        CategoryEntity::class,
+        ExpenseEntity::class,
+        BudgetGoalEntity::class,
+        SavingsGoalEntity::class,
+        TransactionEntity::class
+    ],
+    version = 3,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     /** DAO for category CRUD and lookups. */
@@ -26,6 +34,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     /** DAO for savings goal tracking. */
     abstract fun savingsGoalDao(): SavingsGoalDao
+
+    /** DAO for unified transactions. */
+    abstract fun transactionDao(): TransactionDao
 
     companion object {
         // Volatile keeps the singleton safe when multiple threads ask for it.
@@ -50,5 +61,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-
-

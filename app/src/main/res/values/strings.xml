@@ -99,5 +99,11 @@
     <string name="goal_target_date_value">Target date: %1$s</string>
     <string name="goal_amounts_value">%1$s of %2$s</string>
     <string name="goal_progress_percent">%1$d%%</string>
-</resources>
 
+    <string name="transaction_type_hint">Type</string>
+    <string name="transaction_type_income">Income</string>
+    <string name="transaction_type_expense">Expense</string>
+    <string name="add_transaction_dialog_title">Add Transaction</string>
+    <string name="save_transaction_button">Save Transaction</string>
+    <string name="no_transactions_message">No transactions were created for this period.</string>
+</resources>
