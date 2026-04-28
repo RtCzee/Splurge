@@ -112,6 +112,16 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonProfileSessionAction"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:text="@string/profile_logout_button"
+                android:textAllCaps="false"
+                app:strokeColor="@color/dashboard_feature_card" />
+
             <!-- Linked Accounts Section -->
             <TextView
                 android:layout_width="wrap_content"

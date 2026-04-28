@@ -2,6 +2,22 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="auth_background_start">#FFF7F1E8</color>
+    <color name="auth_background_end">#FFE3EFE8</color>
+    <color name="auth_background_glow_primary">#70D9E9D8</color>
+    <color name="auth_background_glow_secondary">#66F4D2AF</color>
+    <color name="auth_primary">#FF18483F</color>
+    <color name="auth_primary_dark">#FF0F302A</color>
+    <color name="auth_title">#FF17302A</color>
+    <color name="auth_body">#FF5E706A</color>
+    <color name="auth_surface">#FFFFFCF8</color>
+    <color name="auth_surface_stroke">#FFD6E3DA</color>
+    <color name="auth_input_fill">#FFF5FAF7</color>
+    <color name="auth_chip_fill">#FFF0F7F2</color>
+    <color name="auth_chip_stroke">#FFDCE8DF</color>
+    <color name="auth_link">#FF1D6A57</color>
+    <color name="auth_feature_surface">#FF173D36</color>
+    <color name="auth_feature_text_secondary">#CCE6F2EE</color>
     <color name="dashboard_screen_background">#FFF6F7F2</color>
     <color name="dashboard_surface_card">#FFFFFFFF</color>
     <color name="dashboard_feature_card">#FF163A34</color>
