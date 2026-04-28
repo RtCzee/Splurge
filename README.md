@@ -34,6 +34,32 @@ In the future, Splurge will evolve into a smart financial companion that provide
 
 ---
 
+## ▶ Demo
+ youtube demo video
+- **Demo video**: https://youtu.be/Ji0rbQ39tNI
+
+
+
+### UI screenshots
+
+  <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;">
+  <img src="assets/screenshots/Image%201.jpeg" alt="Image 1" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%202.jpeg" alt="Image 2" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%203.jpeg" alt="Image 3" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%204.jpeg" alt="Image 4" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%205.jpeg" alt="Image 5" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%206.jpeg" alt="Image 6" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%207.jpeg" alt="Image 7" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%208.jpeg" alt="Image 8" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%209.jpeg" alt="Image 9" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  <img src="assets/screenshots/image%2010.jpeg" alt="Image 10" style="width:240px;height:auto;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);" />
+  </div>
+
+## ⬇️ Download APK
+
+- You can download the latest Android APK from the Releases page: https://github.com/RtCzee/Splurge/releases
+- To install on a device: download the APK on your Android device and open it to sideload (enable installation from unknown sources if prompted).
+
 ## 📱 Current Development Status
 
 🚧 The project is currently in **early development (Phase 2)**
