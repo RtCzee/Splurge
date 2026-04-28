@@ -12,12 +12,17 @@ import com.example.splurge.data.local.ExpenseListItem
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.google.android.material.button.MaterialButton
 
+/**
+ * Adapter that renders detailed expense entries for the transactions screen.
+ */
 class ExpenseAdapter(
+    // The screen decides how to preview photos, so the adapter exposes a callback.
     private val onPhotoClick: (Uri) -> Unit
 ) : RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder>() {
 
     private var items: List<ExpenseListItem> = emptyList()
 
+    /** Swaps in the latest list of expenses for the selected period. */
     fun submitList(newItems: List<ExpenseListItem>) {
         items = newItems
         notifyDataSetChanged()
@@ -47,6 +52,7 @@ class ExpenseAdapter(
         private val photoPreview: ImageView = itemView.findViewById(R.id.expense_photo_preview)
         private val photoButton: MaterialButton = itemView.findViewById(R.id.view_photo_button)
 
+        /** Populates one expense row and toggles photo controls when an image exists. */
         fun bind(item: ExpenseListItem) {
             amountValue.text = FinanceUiFormatter.formatCurrency(item.amount)
             descriptionValue.text = item.description
@@ -60,6 +66,7 @@ class ExpenseAdapter(
 
             val photoUri = item.photoUri?.let(Uri::parse)
             if (photoUri != null) {
+                // Both the thumbnail and button open the same full-screen preview callback.
                 photoPreview.visibility = View.VISIBLE
                 photoButton.visibility = View.VISIBLE
                 photoPreview.setImageURI(photoUri)
@@ -75,4 +82,3 @@ class ExpenseAdapter(
         }
     }
 }
-

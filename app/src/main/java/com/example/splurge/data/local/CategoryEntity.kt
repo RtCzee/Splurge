@@ -5,6 +5,9 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Represents a user-defined expense category such as Groceries or Transport.
+ */
 @Entity(
     tableName = "categories",
     indices = [Index(value = ["name"], unique = true)]

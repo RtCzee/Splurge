@@ -10,10 +10,14 @@ import com.example.splurge.R
 import com.example.splurge.data.local.SavingsGoalEntity
 import com.example.splurge.ui.common.FinanceUiFormatter
 
+/**
+ * Adapter that renders each saved savings goal and its progress.
+ */
 class SavingsGoalsAdapter : RecyclerView.Adapter<SavingsGoalsAdapter.SavingsGoalViewHolder>() {
 
     private var items: List<SavingsGoalEntity> = emptyList()
 
+    /** Replaces the list contents with the latest goals from the repository. */
     fun submitList(newItems: List<SavingsGoalEntity>) {
         items = newItems
         notifyDataSetChanged()
@@ -31,6 +35,7 @@ class SavingsGoalsAdapter : RecyclerView.Adapter<SavingsGoalsAdapter.SavingsGoal
 
     override fun getItemCount(): Int = items.size
 
+    /** Caches the views used by one row in the savings goal list. */
     class SavingsGoalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val titleView: TextView = itemView.findViewById(R.id.goal_title)
         private val targetDateView: TextView = itemView.findViewById(R.id.goal_target_date)
@@ -38,6 +43,7 @@ class SavingsGoalsAdapter : RecyclerView.Adapter<SavingsGoalsAdapter.SavingsGoal
         private val progressView: ProgressBar = itemView.findViewById(R.id.goal_progress)
         private val percentView: TextView = itemView.findViewById(R.id.goal_percent)
 
+        /** Fills the row with one goal's values and completion percentage. */
         fun bind(item: SavingsGoalEntity) {
             val progress = if (item.targetAmount > 0.0) {
                 ((item.currentAmount / item.targetAmount) * 100).toInt().coerceIn(0, 100)

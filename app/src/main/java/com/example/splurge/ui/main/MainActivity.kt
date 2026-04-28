@@ -20,9 +20,13 @@ import java.time.LocalDate
 import java.time.YearMonth
 import java.util.Locale
 
+/**
+ * Dashboard screen that summarizes the user's current finances and splurge allowance.
+ */
 class MainActivity : BaseActivity() {
     private lateinit var repository: FinanceRepository
 
+    // These defaults let the dashboard render immediately before live values are loaded.
     private var dashboardOverview = DashboardOverview(
         currentBalance = 12480.0,
         todaySpending = 420.0,
@@ -55,17 +59,20 @@ class MainActivity : BaseActivity() {
         setupBottomNavigation(R.id.navigation_dashboard)
     }
 
+    // Refresh when returning from other screens because goals and expenses may have changed.
     override fun onResume() {
         super.onResume()
         refreshDashboardFromDatabase()
     }
 
+    /** Wires the dashboard button that opens the splurge calculator dialog. */
     private fun setupCalculatorButton() {
         findViewById<MaterialButton>(R.id.calculate_splurge_button).setOnClickListener {
             showSplurgeCalculatorDialog()
         }
     }
 
+    /** Pushes the latest dashboard model values into the visible widgets. */
     private fun bindOverview(overview: DashboardOverview) {
         val budgetUsedPercent = if (overview.monthlyBudget > 0.0) {
             ((overview.spentBudget / overview.monthlyBudget) * 100).toInt().coerceIn(0, 100)
@@ -98,7 +105,9 @@ class MainActivity : BaseActivity() {
         findViewById<LinearProgressIndicator>(R.id.budget_status_progress).progress = budgetUsedPercent
     }
 
+    /** Opens the calculator dialog and keeps its result synced as inputs change. */
     private fun showSplurgeCalculatorDialog() {
+        // Always pull fresh month spending before showing the calculator.
         calculatorInput = calculatorInput.copy(expenses = getCurrentMonthSpent())
         val dialogView = LayoutInflater.from(this)
             .inflate(R.layout.dialog_splurge_calculator, null, false)
@@ -116,6 +125,7 @@ class MainActivity : BaseActivity() {
         expensesInput.isCursorVisible = false
 
         val updateCalculator = {
+            // Only income and savings are user editable; expenses are sourced from transactions.
             calculatorInput = calculatorInput.copy(
                 income = incomeInput.text.toCurrencyInput(),
                 savingsGoal = savingsGoalInput.text.toCurrencyInput()
@@ -141,6 +151,7 @@ class MainActivity : BaseActivity() {
             .show()
     }
 
+    /** Recomputes splurge money and reflects the result back on the dashboard. */
     private fun applySplurgeCalculation(): Double {
         val calculatedSplurge = calculateSplurge(
             income = calculatorInput.income,
@@ -156,6 +167,7 @@ class MainActivity : BaseActivity() {
         return calculatedSplurge
     }
 
+    /** Reads the latest totals from the repository and rebuilds the dashboard state. */
     private fun refreshDashboardFromDatabase() {
         val currentMonthSpent = getCurrentMonthSpent()
         val today = FinanceUiFormatter.formatDate(LocalDate.now())
@@ -180,6 +192,7 @@ class MainActivity : BaseActivity() {
         applySplurgeCalculation()
     }
 
+    /** Returns how much has been spent from the first to the last day of the current month. */
     private fun getCurrentMonthSpent(): Double {
         val month = YearMonth.now()
         return repository.getTotalSpentForPeriod(
@@ -188,6 +201,7 @@ class MainActivity : BaseActivity() {
         )
     }
 
+    /** Produces a short budget status label from the month's spend versus the saved goal range. */
     private fun buildBudgetStatus(
         monthSpent: Double,
         minimumGoal: Double,
@@ -205,10 +219,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /** Calculates how much money is left for discretionary spending. */
     private fun calculateSplurge(income: Double, expenses: Double, savingsGoal: Double): Double {
         return (income - expenses - savingsGoal).coerceAtLeast(0.0)
     }
 
+    /** Explains how the splurge number was derived for the user. */
     private fun buildSplurgeNote(
         calculatorInput: SplurgeCalculatorInput,
         splurgeMoney: Double
@@ -225,10 +241,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /** Formats dashboard amounts as South African currency. */
     private fun formatCurrency(amount: Double): String {
         return NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-ZA")).format(amount)
     }
 
+    /** Keeps numeric fields tidy by dropping the decimal when the value is a whole number. */
     private fun formatPlainAmount(amount: Double): String {
         return if (amount % 1.0 == 0.0) {
             amount.toInt().toString()
@@ -237,10 +255,12 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /** Parses text input into a non-negative number for calculator use. */
     private fun CharSequence?.toCurrencyInput(): Double {
         return this?.toString()?.trim()?.toDoubleOrNull()?.coerceAtLeast(0.0) ?: 0.0
     }
 
+    /** Snapshot of all values rendered by the dashboard summary cards. */
     private data class DashboardOverview(
         val currentBalance: Double,
         val todaySpending: Double,
@@ -251,10 +271,12 @@ class MainActivity : BaseActivity() {
         val spendingNote: String,
         val splurgeNote: String
     ) {
+        /** Derived amount already used from the configured monthly budget. */
         val spentBudget: Double
             get() = monthlyBudget - budgetRemaining
     }
 
+    /** Inputs required to calculate the user's discretionary "splurge" amount. */
     private data class SplurgeCalculatorInput(
         val income: Double,
         val expenses: Double,

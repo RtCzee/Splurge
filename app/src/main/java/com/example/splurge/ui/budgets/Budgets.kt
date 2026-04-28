@@ -21,9 +21,13 @@ import com.google.android.material.textfield.TextInputEditText
 import java.time.YearMonth
 import kotlin.math.max
 
+/**
+ * Screen that lets the user manage monthly budget goals and inspect spending by category.
+ */
 class Budgets : BaseActivity() {
     private lateinit var repository: FinanceRepository
     private lateinit var categoryAdapter: BudgetCategoryAdapter
+    // The screen always works against the current month rather than an arbitrary period.
     private val currentMonth: YearMonth = YearMonth.now()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,11 +54,13 @@ class Budgets : BaseActivity() {
         setupBottomNavigation(R.id.navigation_budgets)
     }
 
+    // Refresh again when returning from another screen in case shared data changed.
     override fun onResume() {
         super.onResume()
         bindBudgetScreen()
     }
 
+    /** Switches between the goal summary tab and the category totals tab. */
     private fun setupTabs() {
         val goalSection = findViewById<View>(R.id.goal_section)
         val categorySection = findViewById<View>(R.id.category_section)
@@ -75,6 +81,7 @@ class Budgets : BaseActivity() {
         categorySection.visibility = View.GONE
     }
 
+    /** Wires the edit and add actions shown on this screen. */
     private fun setupActions() {
         findViewById<MaterialButton>(R.id.edit_goals_button).setOnClickListener {
             showGoalDialog()
@@ -87,6 +94,7 @@ class Budgets : BaseActivity() {
         }
     }
 
+    /** Reads the latest month data and binds it into the budget summary views. */
     private fun bindBudgetScreen() {
         val monthKey = FinanceUiFormatter.monthKey(currentMonth)
         val goal = repository.getMonthlyGoal(monthKey)
@@ -126,6 +134,7 @@ class Budgets : BaseActivity() {
             if (categoryTotals.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    /** Converts the current month spend into a short status message for the UI. */
     private fun buildBudgetStatusMessage(
         monthlySpent: Double,
         minimumGoal: Double,
@@ -143,6 +152,7 @@ class Budgets : BaseActivity() {
         }
     }
 
+    /** Opens the dialog used to create or update the current month's goals. */
     private fun showGoalDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_budget_goal, null, false)
         val minimumInput = dialogView.findViewById<TextInputEditText>(R.id.minimum_goal_input)
@@ -162,6 +172,8 @@ class Budgets : BaseActivity() {
         dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val minimumGoal = minimumInput.text.toCurrencyValue()
             val maximumGoal = maximumInput.text.toCurrencyValue()
+
+            // A maximum smaller than the minimum would make the goal impossible to satisfy.
             if (maximumGoal > 0.0 && minimumGoal > maximumGoal) {
                 Toast.makeText(this, R.string.invalid_goal_range_message, Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
@@ -176,6 +188,7 @@ class Budgets : BaseActivity() {
         }
     }
 
+    /** Opens the dialog used to save a new expense category. */
     private fun showAddCategoryDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_category, null, false)
         val categoryInput = dialogView.findViewById<TextInputEditText>(R.id.category_name_input)
@@ -198,8 +211,8 @@ class Budgets : BaseActivity() {
         }
     }
 
+    /** Parses a numeric text field into a non-negative currency value. */
     private fun CharSequence?.toCurrencyValue(): Double {
         return this?.toString()?.trim()?.toDoubleOrNull()?.coerceAtLeast(0.0) ?: 0.0
     }
 }
-

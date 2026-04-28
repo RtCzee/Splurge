@@ -19,6 +19,9 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.textfield.TextInputEditText
 import java.time.LocalDate
 
+/**
+ * Screen that tracks the user's savings goals and combined progress toward them.
+ */
 class Goals : BaseActivity() {
     private lateinit var repository: FinanceRepository
     private lateinit var goalsAdapter: SavingsGoalsAdapter
@@ -49,11 +52,13 @@ class Goals : BaseActivity() {
         setupBottomNavigation(R.id.navigation_goals)
     }
 
+    // Refresh the list after navigation because goals can be changed elsewhere.
     override fun onResume() {
         super.onResume()
         bindGoalsScreen()
     }
 
+    /** Loads savings goal data and updates the summary widgets. */
     private fun bindGoalsScreen() {
         val goals = repository.getSavingsGoals()
         val totalSaved = repository.getTotalSavedAcrossGoals()
@@ -89,6 +94,7 @@ class Goals : BaseActivity() {
             if (goals.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    /** Opens the dialog for creating a new savings goal. */
     private fun showAddGoalDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_savings_goal, null, false)
         val nameInput = dialogView.findViewById<TextInputEditText>(R.id.savings_goal_name_input)
@@ -97,6 +103,7 @@ class Goals : BaseActivity() {
         val dateInput = dialogView.findViewById<TextInputEditText>(R.id.savings_goal_date_input)
         val selectedDate = arrayOf(LocalDate.now().plusMonths(1))
 
+        // Default the target date to next month so the dialog starts with a realistic goal horizon.
         dateInput.setText(
             FinanceUiFormatter.formatDisplayDate(FinanceUiFormatter.formatDate(selectedDate[0]))
         )
@@ -127,6 +134,7 @@ class Goals : BaseActivity() {
             val targetAmount = targetInput.text.toCurrencyValue()
             val currentAmount = currentInput.text.toCurrencyValue()
 
+            // Validate user input before anything is written to the database.
             when {
                 title.isEmpty() ->
                     Toast.makeText(this, R.string.invalid_savings_goal_name, Toast.LENGTH_SHORT).show()
@@ -148,8 +156,8 @@ class Goals : BaseActivity() {
         }
     }
 
+    /** Parses the dialog's numeric fields into a double value. */
     private fun CharSequence?.toCurrencyValue(): Double {
         return this?.toString()?.trim()?.toDoubleOrNull() ?: 0.0
     }
 }
-

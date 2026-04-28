@@ -9,10 +9,14 @@ import com.example.splurge.R
 import com.example.splurge.data.local.CategorySpendTotal
 import com.example.splurge.ui.common.FinanceUiFormatter
 
+/**
+ * Adapter used by the transactions totals tab to show grouped category summaries.
+ */
 class CategoryTotalsAdapter : RecyclerView.Adapter<CategoryTotalsAdapter.CategoryTotalViewHolder>() {
 
     private var items: List<CategorySpendTotal> = emptyList()
 
+    /** Updates the totals list with the most recent query results. */
     fun submitList(newItems: List<CategorySpendTotal>) {
         items = newItems
         notifyDataSetChanged()
@@ -30,11 +34,13 @@ class CategoryTotalsAdapter : RecyclerView.Adapter<CategoryTotalsAdapter.Categor
 
     override fun getItemCount(): Int = items.size
 
+    /** Holds the views for one category total row. */
     class CategoryTotalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val categoryName: TextView = itemView.findViewById(R.id.total_category_name)
         private val entryCount: TextView = itemView.findViewById(R.id.total_category_entries)
         private val totalAmount: TextView = itemView.findViewById(R.id.total_category_amount)
 
+        /** Writes one category summary into the row. */
         fun bind(item: CategorySpendTotal) {
             categoryName.text = item.categoryName
             entryCount.text = itemView.context.resources.getQuantityString(
@@ -46,4 +52,3 @@ class CategoryTotalsAdapter : RecyclerView.Adapter<CategoryTotalsAdapter.Categor
         }
     }
 }
-

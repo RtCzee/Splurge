@@ -7,6 +7,9 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.splurge.R
 import com.example.splurge.ui.base.BaseActivity
 
+/**
+ * Placeholder profile screen that currently just hosts the shared bottom navigation.
+ */
 class Profile : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

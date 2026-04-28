@@ -30,23 +30,31 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.YearMonth
 
+/**
+ * Screen for recording expenses and reviewing spending for a selected date range.
+ */
 class Transactions : BaseActivity() {
     private lateinit var repository: FinanceRepository
     private lateinit var expenseAdapter: ExpenseAdapter
     private lateinit var categoryTotalsAdapter: CategoryTotalsAdapter
+    // Default the filter to the current month so the screen opens with useful context.
     private var selectedStartDate: LocalDate = YearMonth.now().atDay(1)
     private var selectedEndDate: LocalDate = LocalDate.now()
+
+    // These references allow the photo picker result to update the active add-expense dialog.
     private var pendingExpensePhotoUri: Uri? = null
     private var activePhotoPreview: ImageView? = null
     private var activePhotoLabel: TextView? = null
     private var activeRemovePhotoButton: MaterialButton? = null
     private var showingTotalsTab: Boolean = false
 
+    // The document picker returns an image URI that can be stored alongside the expense.
     private val photoPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) {
             return@registerForActivityResult
         }
         try {
+            // Persist read access so the preview can still be opened after the app restarts.
             contentResolver.takePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -86,11 +94,13 @@ class Transactions : BaseActivity() {
         setupBottomNavigation(R.id.navigation_transactions)
     }
 
+    // Refresh on return because expenses and categories can change elsewhere in the app.
     override fun onResume() {
         super.onResume()
         bindTransactionData()
     }
 
+    /** Switches between the raw expense list and the grouped totals tab. */
     private fun setupTabs() {
         val entriesRecycler = findViewById<View>(R.id.transactions_recycler)
         val totalsRecycler = findViewById<View>(R.id.category_totals_recycler)
@@ -115,6 +125,7 @@ class Transactions : BaseActivity() {
         )
     }
 
+    /** Wires the start and end date filters used by the reporting queries. */
     private fun setupFilters() {
         findViewById<MaterialButton>(R.id.start_period_button).setOnClickListener {
             showDatePicker(selectedStartDate) { selectedDate ->
@@ -136,6 +147,7 @@ class Transactions : BaseActivity() {
         }
     }
 
+    /** Wires the floating action button used to create a new expense entry. */
     private fun setupActions() {
         findViewById<FloatingActionButton>(R.id.add_transaction_fab).setOnClickListener {
             if (repository.getCategoryCount() == 0) {
@@ -146,6 +158,7 @@ class Transactions : BaseActivity() {
         }
     }
 
+    /** Runs the current date-range queries and binds the results to the screen. */
     private fun bindTransactionData() {
         val startDateValue = FinanceUiFormatter.formatDate(selectedStartDate)
         val endDateValue = FinanceUiFormatter.formatDate(selectedEndDate)
@@ -173,6 +186,7 @@ class Transactions : BaseActivity() {
         expenseAdapter.submitList(expenses)
         categoryTotalsAdapter.submitList(categoryTotals)
 
+        // The empty state text changes depending on whether the user is viewing entries or totals.
         val emptyText = findViewById<TextView>(R.id.empty_transactions_text)
         val isEmpty = if (showingTotalsTab) {
             categoryTotals.isEmpty()
@@ -185,6 +199,7 @@ class Transactions : BaseActivity() {
         emptyText.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
+    /** Opens the dialog used to capture a new expense, including an optional photo. */
     private fun showAddExpenseDialog() {
         val categories = repository.getCategories()
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_expense_entry, null, false)
@@ -207,6 +222,7 @@ class Transactions : BaseActivity() {
         activePhotoLabel = photoLabel
         activeRemovePhotoButton = removePhotoButton
 
+        // Seed the form with sensible defaults to minimize typing.
         dateInput.setText(FinanceUiFormatter.formatDisplayDate(FinanceUiFormatter.formatDate(selectedDate[0])))
         startTimeInput.setText(FinanceUiFormatter.formatTime(selectedStartTime[0]))
         endTimeInput.setText(FinanceUiFormatter.formatTime(selectedEndTime[0]))
@@ -261,6 +277,7 @@ class Transactions : BaseActivity() {
             val selectedCategoryName = categoryInput.text?.toString()?.trim().orEmpty()
             val category = categories.firstOrNull { it.name.equals(selectedCategoryName, ignoreCase = true) }
 
+            // The entry is only saved after all required fields pass validation.
             when {
                 amount <= 0.0 -> Toast.makeText(this, R.string.invalid_expense_amount, Toast.LENGTH_SHORT).show()
                 description.isEmpty() -> Toast.makeText(this, R.string.invalid_expense_description, Toast.LENGTH_SHORT).show()
@@ -284,6 +301,7 @@ class Transactions : BaseActivity() {
         }
     }
 
+    /** Updates the currently visible add-expense dialog with the selected photo state. */
     private fun updatePhotoPreview() {
         val uri = pendingExpensePhotoUri
         if (uri == null) {
@@ -300,6 +318,7 @@ class Transactions : BaseActivity() {
         activeRemovePhotoButton?.visibility = View.VISIBLE
     }
 
+    /** Clears dialog-specific photo references after the dialog closes. */
     private fun clearActivePhotoViews() {
         pendingExpensePhotoUri = null
         activePhotoPreview = null
@@ -307,6 +326,7 @@ class Transactions : BaseActivity() {
         activeRemovePhotoButton = null
     }
 
+    /** Shows a date picker and returns the selected LocalDate through a callback. */
     private fun showDatePicker(initialDate: LocalDate, onDateSelected: (LocalDate) -> Unit) {
         DatePickerDialog(
             this,
@@ -319,6 +339,7 @@ class Transactions : BaseActivity() {
         ).show()
     }
 
+    /** Shows a 24-hour time picker and returns the chosen LocalTime. */
     private fun showTimePicker(initialTime: LocalTime, onTimeSelected: (LocalTime) -> Unit) {
         TimePickerDialog(
             this,
@@ -331,6 +352,7 @@ class Transactions : BaseActivity() {
         ).show()
     }
 
+    /** Displays the tapped expense photo inside a simple dialog preview. */
     private fun showPhotoPreview(photoUri: Uri) {
         val imageView = ImageView(this).apply {
             adjustViewBounds = true
@@ -344,8 +366,8 @@ class Transactions : BaseActivity() {
             .show()
     }
 
+    /** Parses text field input into a non-negative amount for expense entry. */
     private fun CharSequence?.toCurrencyValue(): Double {
         return this?.toString()?.trim()?.toDoubleOrNull()?.coerceAtLeast(0.0) ?: 0.0
     }
 }
-

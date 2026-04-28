@@ -5,6 +5,12 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Raw expense record stored in the database.
+ *
+ * Dates and times are stored as formatted strings because the UI already works
+ * with display-friendly date and time values.
+ */
 @Entity(
     tableName = "expenses",
     foreignKeys = [
