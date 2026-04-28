@@ -10,13 +10,21 @@ import com.example.splurge.ui.profile.Profile
 import com.example.splurge.ui.transactions.Transactions
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
+/**
+ * Shared base activity that wires the bottom navigation used by every screen.
+ */
 abstract class BaseActivity : AppCompatActivity() {
 
+    /**
+     * Highlights the current destination and opens the selected screen when the
+     * user taps a different item in the bottom navigation bar.
+     */
     protected fun setupBottomNavigation(selectedItemId: Int) {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = selectedItemId
 
         bottomNavigationView.setOnItemSelectedListener { item ->
+            // Avoid recreating the current activity when the already-selected tab is tapped.
             if (item.itemId == selectedItemId) {
                 return@setOnItemSelectedListener true
             }

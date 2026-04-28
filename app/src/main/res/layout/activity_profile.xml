@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/dashboard_screen_background"
     tools:context=".Profile">
 
     <!-- Toolbar -->
@@ -13,7 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/dashboard_feature_card"
         android:theme="@style/ThemeOverlay.Material3.ActionBar"
         app:title="Settings"
         app:titleTextColor="@android:color/white" />
@@ -38,7 +38,7 @@
                 android:text="Profile"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_blue_dark" />
+                android:textColor="@color/dashboard_primary_text" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -95,7 +95,7 @@
                                     android:layout_height="wrap_content"
                                     android:text="john.doe@example.com"
                                     android:textSize="14sp"
-                                    android:textColor="@android:color/darker_gray" />
+                                    android:textColor="@color/dashboard_muted_text" />
 
                             </LinearLayout>
 
@@ -120,7 +120,7 @@
                 android:text="Linked Accounts"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_blue_dark" />
+                android:textColor="@color/dashboard_primary_text" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -169,7 +169,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@android:color/darker_gray" />
+                        android:background="@color/dashboard_card_stroke" />
 
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/manual_account_card"
@@ -215,7 +215,7 @@
                 android:text="Privacy and Security"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_blue_dark" />
+                android:textColor="@color/dashboard_primary_text" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -253,7 +253,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@android:color/darker_gray" />
+                        android:background="@color/dashboard_card_stroke" />
 
                     <!-- Privacy Controls -->
                     <com.google.android.material.card.MaterialCardView
@@ -291,7 +291,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@android:color/darker_gray" />
+                        android:background="@color/dashboard_card_stroke" />
 
                     <!-- Change Password -->
                     <com.google.android.material.card.MaterialCardView
@@ -338,7 +338,7 @@
                 android:text="Notifications"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_blue_dark" />
+                android:textColor="@color/dashboard_primary_text" />
 
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
@@ -377,7 +377,7 @@
                     <View
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:background="@android:color/darker_gray" />
+                        android:background="@color/dashboard_card_stroke" />
 
                     <!-- Bill Reminders -->
                     <LinearLayout

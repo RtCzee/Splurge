@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Splurge">
         <activity
+            android:name=".ui.transactions.Transactions"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.Profile"
             android:exported="false" />
         <activity
@@ -19,9 +22,6 @@
             android:exported="false" />
         <activity
             android:name=".ui.budgets.Budgets"
-            android:exported="false" />
-        <activity
-            android:name=".ui.transactions.Transactions"
             android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"

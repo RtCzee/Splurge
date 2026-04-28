@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/dashboard_screen_background"
     tools:context=".Goals">
 
     <!-- Toolbar -->
@@ -13,7 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/dashboard_feature_card"
         android:theme="@style/ThemeOverlay.Material3.ActionBar"
         app:title="Savings Goals"
         app:titleTextColor="@android:color/white" />
@@ -33,7 +33,7 @@
             android:layout_margin="16dp"
             app:cardCornerRadius="12dp"
             app:cardElevation="4dp"
-            app:cardBackgroundColor="@android:color/holo_blue_light">
+            app:cardBackgroundColor="@color/dashboard_feature_card">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -46,7 +46,7 @@
                     android:layout_height="wrap_content"
                     android:text="Total Saved"
                     android:textSize="14sp"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/dashboard_feature_text_secondary" />
 
                 <TextView
                     android:id="@+id/total_saved_amount"
@@ -55,7 +55,7 @@
                     android:text="R 8,450.00"
                     android:textSize="28sp"
                     android:textStyle="bold"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/dashboard_feature_text_primary" />
 
                 <TextView
                     android:id="@+id/total_goal_amount"
@@ -63,7 +63,16 @@
                     android:layout_height="wrap_content"
                     android:text="Goal Total: R 25,000.00"
                     android:textSize="14sp"
-                    android:textColor="@android:color/white" />
+                    android:textColor="@color/dashboard_feature_text_secondary" />
+
+                <TextView
+                    android:id="@+id/goals_summary_note"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="@color/dashboard_feature_text_secondary"
+                    android:textSize="13sp"
+                    tools:text="1 of 3 goals already more than halfway there" />
 
                 <!-- Overall Progress Bar -->
                 <ProgressBar
@@ -88,7 +97,8 @@
             android:layout_marginBottom="8dp"
             android:text="My Goals"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:textColor="@color/dashboard_primary_text" />
 
         <!-- Goals RecyclerView -->
         <androidx.recyclerview.widget.RecyclerView
@@ -97,6 +107,17 @@
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="8dp" />
+
+        <TextView
+            android:id="@+id/empty_goals_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="24dp"
+            android:text="@string/no_savings_goals_message"
+            android:textColor="@color/dashboard_muted_text"
+            android:textSize="14sp"
+            android:visibility="gone" />
 
         <!-- Shared Goals Section Title -->
         <TextView
@@ -109,6 +130,7 @@
             android:text="Shared Goals"
             android:textSize="16sp"
             android:textStyle="bold"
+            android:textColor="@color/dashboard_primary_text"
             android:visibility="gone" />
 
         <!-- Shared Goals RecyclerView -->

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="dashboard_screen_background">#FF101512</color>
+    <color name="dashboard_surface_card">#FF18201D</color>
+    <color name="dashboard_feature_card">#FF1D4A42</color>
+    <color name="dashboard_feature_card_stroke">#33E6F1EB</color>
+    <color name="dashboard_primary_text">#FFE7F0EA</color>
+    <color name="dashboard_muted_text">#FFA2B3AB</color>
+    <color name="dashboard_feature_text_primary">#FFF4FBF7</color>
+    <color name="dashboard_feature_text_secondary">#CCE0EFE8</color>
+    <color name="dashboard_card_stroke">#FF2A3631</color>
+    <color name="dashboard_status_fill">#FF63C787</color>
+    <color name="dashboard_status_track">#FF24352E</color>
+    <color name="dashboard_status_text">#FFB6F0C8</color>
+    <color name="dashboard_status_background">#FF173225</color>
+</resources>
