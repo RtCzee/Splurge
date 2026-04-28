@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -16,11 +17,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         ExpenseEntity::class,
         BudgetGoalEntity::class,
         SavingsGoalEntity::class,
+        TransactionEntity::class,
         UserEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
+@TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     /** DAO for category CRUD and lookups. */
@@ -34,6 +37,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     /** DAO for savings goal tracking. */
     abstract fun savingsGoalDao(): SavingsGoalDao
+
+    /** DAO for unified transactions. */
+    abstract fun transactionDao(): TransactionDao
 
     /** DAO for local account registration and sign-in. */
     abstract fun userDao(): UserDao
@@ -62,6 +68,31 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `transactions` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `amount` REAL NOT NULL,
+                        `date` TEXT NOT NULL,
+                        `description` TEXT NOT NULL,
+                        `categoryId` INTEGER NOT NULL,
+                        `type` TEXT NOT NULL,
+                        `photoUri` TEXT,
+                        FOREIGN KEY(`categoryId`) REFERENCES `categories`(`id`) ON DELETE RESTRICT
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_transactions_categoryId` ON `transactions`(`categoryId`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_transactions_date` ON `transactions`(`date`)"
+                )
+            }
+        }
+
         /** Builds or returns the existing Room database instance. */
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -70,7 +101,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "splurge_room.db"
                 )
-                    .addMigrations(MIGRATION_2_3)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
                     // This project currently recreates the database if the schema changes.
                     .fallbackToDestructiveMigration()
                     // Queries are allowed on the main thread to keep the sample app simple.
@@ -81,5 +112,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-
-

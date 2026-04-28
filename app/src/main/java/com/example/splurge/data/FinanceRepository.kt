@@ -8,6 +8,9 @@ import com.example.splurge.data.local.CategorySpendTotal
 import com.example.splurge.data.local.ExpenseEntity
 import com.example.splurge.data.local.ExpenseListItem
 import com.example.splurge.data.local.SavingsGoalEntity
+import com.example.splurge.data.local.TransactionEntity
+import com.example.splurge.data.local.TransactionListItem
+import com.example.splurge.data.local.TransactionType
 import com.example.splurge.data.local.UserEntity
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -135,6 +138,37 @@ class FinanceRepository private constructor(context: Context) {
         return database.savingsGoalDao().getTotalTarget()
     }
 
+    /** Adds a unified transaction (Income or Expense). */
+    fun addTransaction(
+        amount: Double,
+        date: String,
+        description: String,
+        categoryId: Long,
+        type: TransactionType,
+        photoUri: String?
+    ) {
+        database.transactionDao().insert(
+            TransactionEntity(
+                amount = amount,
+                date = date,
+                description = description,
+                categoryId = categoryId,
+                type = type,
+                photoUri = photoUri
+            )
+        )
+    }
+
+    /** Returns all transactions for a period. */
+    fun getTransactionsForPeriod(startDate: String, endDate: String): List<TransactionListItem> {
+        return database.transactionDao().getTransactionsForPeriod(startDate, endDate)
+    }
+
+    /** Returns count of transactions for a period. */
+    fun getTransactionCountForPeriod(startDate: String, endDate: String): Int {
+        return database.transactionDao().getTransactionCountForPeriod(startDate, endDate)
+    }
+
     /** Creates a new local account if the email address is not already registered. */
     fun registerUser(
         fullName: String,
@@ -218,4 +252,3 @@ class FinanceRepository private constructor(context: Context) {
         object InvalidInput : RegistrationResult()
     }
 }
-
