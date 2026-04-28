@@ -4,13 +4,21 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Room database backing all persistent finance data in the app.
  */
 @Database(
-    entities = [CategoryEntity::class, ExpenseEntity::class, BudgetGoalEntity::class, SavingsGoalEntity::class],
-    version = 2,
+    entities = [
+        CategoryEntity::class,
+        ExpenseEntity::class,
+        BudgetGoalEntity::class,
+        SavingsGoalEntity::class,
+        UserEntity::class
+    ],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,10 +35,32 @@ abstract class AppDatabase : RoomDatabase() {
     /** DAO for savings goal tracking. */
     abstract fun savingsGoalDao(): SavingsGoalDao
 
+    /** DAO for local account registration and sign-in. */
+    abstract fun userDao(): UserDao
+
     companion object {
         // Volatile keeps the singleton safe when multiple threads ask for it.
         @Volatile
         private var INSTANCE: AppDatabase? = null
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        fullName TEXT NOT NULL,
+                        email TEXT NOT NULL,
+                        passwordHash TEXT NOT NULL,
+                        passwordSalt TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_users_email ON users(email)"
+                )
+            }
+        }
 
         /** Builds or returns the existing Room database instance. */
         fun getInstance(context: Context): AppDatabase {
@@ -40,6 +70,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "splurge_room.db"
                 )
+                    .addMigrations(MIGRATION_2_3)
                     // This project currently recreates the database if the schema changes.
                     .fallbackToDestructiveMigration()
                     // Queries are allowed on the main thread to keep the sample app simple.

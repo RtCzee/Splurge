@@ -1,5 +1,44 @@
 <resources>
     <string name="app_name">Splurge</string>
+    <string name="auth_logo_content_description">Splurge logo</string>
+    <string name="welcome_brand_label">SMART SPENDING, SOFTER LANDINGS</string>
+    <string name="welcome_title">Spend boldly with a plan behind you</string>
+    <string name="welcome_subtitle">Splurge helps you stay on top of daily spending, protect your goals, and keep room for the fun stuff without the guilt spiral.</string>
+    <string name="welcome_feature_label">What waits inside</string>
+    <string name="welcome_feature_title">A calmer way to track money without losing your spark.</string>
+    <string name="welcome_feature_one">Daily spending clarity</string>
+    <string name="welcome_feature_two">Savings-friendly habits</string>
+    <string name="welcome_feature_three">A home for your splurge money</string>
+    <string name="welcome_login_button">Log in</string>
+    <string name="welcome_signup_button">Create an account</string>
+    <string name="welcome_guest_button">Continue as guest</string>
+    <string name="login_back_to_welcome">Back to welcome</string>
+    <string name="login_title">Welcome back</string>
+    <string name="login_subtitle">Pick up where you left off and keep your budgets, goals, and spending snapshots close.</string>
+    <string name="login_email_hint">Email address</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_remember_device">Remember this device</string>
+    <string name="login_button">Enter Splurge</string>
+    <string name="login_create_account_prompt">Need an account? Sign up</string>
+    <string name="login_guest_prompt">Skip for now</string>
+    <string name="signup_back_to_welcome">Back to welcome</string>
+    <string name="signup_title">Create your account</string>
+    <string name="signup_subtitle">Build a budget that protects essentials, grows your goals, and still leaves room for the things you enjoy.</string>
+    <string name="signup_name_hint">Full name</string>
+    <string name="signup_confirm_password_hint">Confirm password</string>
+    <string name="signup_button">Create account</string>
+    <string name="signup_have_account_prompt">Already have an account? Log in</string>
+    <string name="signup_guest_prompt">Maybe later</string>
+    <string name="auth_validation_name">Enter your name to continue.</string>
+    <string name="auth_validation_email_empty">Enter your email address.</string>
+    <string name="auth_validation_email_invalid">Enter a valid email address.</string>
+    <string name="auth_validation_password_empty">Enter your password.</string>
+    <string name="auth_validation_password_short">Use at least 6 characters for your password.</string>
+    <string name="auth_validation_confirm_password">Confirm your password.</string>
+    <string name="auth_validation_password_mismatch">Passwords do not match.</string>
+    <string name="auth_login_invalid_credentials">That email and password do not match any local Splurge account.</string>
+    <string name="auth_signup_email_exists">That email is already registered on this device.</string>
+    <string name="auth_signup_failed">We could not create your account. Please try again.</string>
     <string name="add_goal">Add Goal</string>
     <string name="dashboard_label">Dashboard</string>
     <string name="dashboard_title">Your money at a glance</string>
@@ -99,5 +138,9 @@
     <string name="goal_target_date_value">Target date: %1$s</string>
     <string name="goal_amounts_value">%1$s of %2$s</string>
     <string name="goal_progress_percent">%1$d%%</string>
+    <string name="profile_guest_name">Guest user</string>
+    <string name="profile_guest_email">No local account is signed in.</string>
+    <string name="profile_logout_button">Log out</string>
+    <string name="profile_login_button">Log in or sign up</string>
 </resources>
 
