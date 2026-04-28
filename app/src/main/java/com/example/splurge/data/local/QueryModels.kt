@@ -17,6 +17,20 @@ data class ExpenseListItem(
 )
 
 /**
+ * Unified projection for both income and expenses.
+ */
+data class TransactionListItem(
+    val id: Long,
+    val amount: Double,
+    val date: String,
+    val description: String,
+    val type: TransactionType,
+    val photoUri: String?,
+    val categoryId: Long,
+    val categoryName: String
+)
+
+/**
  * Projection used by reporting screens to show total spend and entry count per category.
  */
 data class CategorySpendTotal(
@@ -25,4 +39,3 @@ data class CategorySpendTotal(
     val totalAmount: Double,
     val entryCount: Int
 )
-

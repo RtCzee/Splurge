@@ -8,6 +8,14 @@ import com.example.splurge.data.local.CategorySpendTotal
 import com.example.splurge.data.local.ExpenseEntity
 import com.example.splurge.data.local.ExpenseListItem
 import com.example.splurge.data.local.SavingsGoalEntity
+import com.example.splurge.data.local.TransactionEntity
+import com.example.splurge.data.local.TransactionListItem
+import com.example.splurge.data.local.TransactionType
+import com.example.splurge.data.local.UserEntity
+import java.security.MessageDigest
+import java.security.SecureRandom
+import java.util.Base64
+import java.util.Locale
 
 /**
  * Central data access layer for the app.
@@ -130,10 +138,105 @@ class FinanceRepository private constructor(context: Context) {
         return database.savingsGoalDao().getTotalTarget()
     }
 
+    /** Adds a unified transaction (Income or Expense). */
+    fun addTransaction(
+        amount: Double,
+        date: String,
+        description: String,
+        categoryId: Long,
+        type: TransactionType,
+        photoUri: String?
+    ) {
+        database.transactionDao().insert(
+            TransactionEntity(
+                amount = amount,
+                date = date,
+                description = description,
+                categoryId = categoryId,
+                type = type,
+                photoUri = photoUri
+            )
+        )
+    }
+
+    /** Returns all transactions for a period. */
+    fun getTransactionsForPeriod(startDate: String, endDate: String): List<TransactionListItem> {
+        return database.transactionDao().getTransactionsForPeriod(startDate, endDate)
+    }
+
+    /** Returns count of transactions for a period. */
+    fun getTransactionCountForPeriod(startDate: String, endDate: String): Int {
+        return database.transactionDao().getTransactionCountForPeriod(startDate, endDate)
+    }
+
+    /** Creates a new local account if the email address is not already registered. */
+    fun registerUser(
+        fullName: String,
+        email: String,
+        password: String
+    ): RegistrationResult {
+        val trimmedName = fullName.trim()
+        val normalizedEmail = normalizeEmail(email)
+
+        if (trimmedName.isEmpty() || normalizedEmail.isEmpty() || password.isEmpty()) {
+            return RegistrationResult.InvalidInput
+        }
+
+        if (database.userDao().getUserByEmail(normalizedEmail) != null) {
+            return RegistrationResult.EmailAlreadyExists
+        }
+
+        val salt = createSalt()
+        val userId = database.userDao().insert(
+            UserEntity(
+                fullName = trimmedName,
+                email = normalizedEmail,
+                passwordHash = hashPassword(password, salt),
+                passwordSalt = salt,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+        return RegistrationResult.Success(userId)
+    }
+
+    /** Returns the matching user when the supplied credentials are valid. */
+    fun authenticateUser(email: String, password: String): UserEntity? {
+        val normalizedEmail = normalizeEmail(email)
+        if (normalizedEmail.isEmpty() || password.isEmpty()) {
+            return null
+        }
+
+        val user = database.userDao().getUserByEmail(normalizedEmail) ?: return null
+        val computedHash = hashPassword(password, user.passwordSalt)
+        return user.takeIf { it.passwordHash == computedHash }
+    }
+
+    /** Looks up a registered user by id. */
+    fun getUserById(userId: Long): UserEntity? {
+        return database.userDao().getUserById(userId)
+    }
+
+    private fun normalizeEmail(email: String): String {
+        return email.trim().lowercase(Locale.ROOT)
+    }
+
+    private fun createSalt(): String {
+        val saltBytes = ByteArray(SALT_LENGTH)
+        SecureRandom().nextBytes(saltBytes)
+        return Base64.getEncoder().encodeToString(saltBytes)
+    }
+
+    private fun hashPassword(password: String, salt: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val hashedBytes = digest.digest("$salt:$password".toByteArray(Charsets.UTF_8))
+        return Base64.getEncoder().encodeToString(hashedBytes)
+    }
+
     companion object {
         // Volatile ensures every thread reads the most recent singleton instance.
         @Volatile
         private var INSTANCE: FinanceRepository? = null
+        private const val SALT_LENGTH = 16
 
         /** Provides the single repository instance shared across the application. */
         fun getInstance(context: Context): FinanceRepository {
@@ -142,5 +245,10 @@ class FinanceRepository private constructor(context: Context) {
             }
         }
     }
-}
 
+    sealed class RegistrationResult {
+        data class Success(val userId: Long) : RegistrationResult()
+        object EmailAlreadyExists : RegistrationResult()
+        object InvalidInput : RegistrationResult()
+    }
+}

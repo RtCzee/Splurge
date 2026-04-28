@@ -5,6 +5,264 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.signin.Signin">
+    android:background="@drawable/bg_auth_screen"
+    tools:context=".ui.signup.Signup">
 
+    <View
+        android:layout_width="220dp"
+        android:layout_height="220dp"
+        android:background="@drawable/bg_auth_glow_primary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:background="@drawable/bg_auth_glow_secondary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingTop="28dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="32dp">
+
+            <TextView
+                android:id="@+id/textSignupBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:text="@string/signup_back_to_welcome"
+                android:textColor="@color/auth_link"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/bg_auth_brand_chip"
+                android:paddingStart="14dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="8dp"
+                android:text="@string/welcome_brand_label"
+                android:textAllCaps="true"
+                android:textColor="@color/auth_link"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/auth_surface"
+                app:cardCornerRadius="30dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/auth_surface_stroke"
+                app:strokeWidth="1dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/auth_logo_content_description"
+                    android:padding="18dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/splurge_logo" />
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:gravity="center"
+                android:text="@string/signup_title"
+                android:textColor="@color/auth_title"
+                android:textSize="28sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="center"
+                android:lineSpacingExtra="4dp"
+                android:text="@string/signup_subtitle"
+                android:textColor="@color/auth_body"
+                android:textSize="15sp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                app:cardBackgroundColor="@color/auth_surface"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/auth_surface_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="22dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutSignupName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/signup_name_hint"
+                        app:boxBackgroundColor="@color/auth_input_fill"
+                        app:boxBackgroundMode="filled"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        app:boxStrokeColor="@color/auth_primary"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputSignupName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="name"
+                            android:inputType="textPersonName"
+                            android:textColor="@color/auth_title"
+                            android:textColorHint="@color/auth_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutSignupEmail"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/login_email_hint"
+                        app:boxBackgroundColor="@color/auth_input_fill"
+                        app:boxBackgroundMode="filled"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        app:boxStrokeColor="@color/auth_primary"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputSignupEmail"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="emailAddress"
+                            android:inputType="textEmailAddress"
+                            android:textColor="@color/auth_title"
+                            android:textColorHint="@color/auth_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutSignupPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/login_password_hint"
+                        app:boxBackgroundColor="@color/auth_input_fill"
+                        app:boxBackgroundMode="filled"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        app:boxStrokeColor="@color/auth_primary"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:endIconMode="password_toggle">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputSignupPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="newPassword"
+                            android:inputType="textPassword"
+                            android:textColor="@color/auth_title"
+                            android:textColorHint="@color/auth_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layoutSignupConfirmPassword"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:hint="@string/signup_confirm_password_hint"
+                        app:boxBackgroundColor="@color/auth_input_fill"
+                        app:boxBackgroundMode="filled"
+                        app:boxCornerRadiusBottomEnd="20dp"
+                        app:boxCornerRadiusBottomStart="20dp"
+                        app:boxCornerRadiusTopEnd="20dp"
+                        app:boxCornerRadiusTopStart="20dp"
+                        app:boxStrokeColor="@color/auth_primary"
+                        app:boxStrokeWidth="1dp"
+                        app:boxStrokeWidthFocused="2dp"
+                        app:endIconMode="password_toggle">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/inputSignupConfirmPassword"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:autofillHints="newPassword"
+                            android:imeOptions="actionDone"
+                            android:inputType="textPassword"
+                            android:textColor="@color/auth_title"
+                            android:textColorHint="@color/auth_body" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/buttonSignupContinue"
+                        android:layout_width="match_parent"
+                        android:layout_height="56dp"
+                        android:layout_marginTop="20dp"
+                        android:backgroundTint="@color/auth_primary"
+                        android:text="@string/signup_button"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:cornerRadius="18dp" />
+
+                    <TextView
+                        android:id="@+id/textSignupGuest"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/signup_guest_prompt"
+                        android:textColor="@color/auth_link"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:id="@+id/textSignupHaveAccount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:text="@string/signup_have_account_prompt"
+                android:textColor="@color/auth_primary"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

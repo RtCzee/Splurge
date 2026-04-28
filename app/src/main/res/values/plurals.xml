@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <plurals name="category_entry_count">
-        <item quantity="one">%d entry</item>
-        <item quantity="other">%d entries</item>
+        <item quantity="one">%1$d entry</item>
+        <item quantity="other">%1$d entries</item>
     </plurals>
 
     <plurals name="expense_entry_count">
-        <item quantity="one">%d expense in this period</item>
-        <item quantity="other">%d expenses in this period</item>
+        <item quantity="one">%1$d expense in this period</item>
+        <item quantity="other">%1$d expenses in this period</item>
+    </plurals>
+
+    <plurals name="transaction_entry_count">
+        <item quantity="one">%1$d transaction in this period</item>
+        <item quantity="other">%1$d transactions in this period</item>
     </plurals>
 </resources>
