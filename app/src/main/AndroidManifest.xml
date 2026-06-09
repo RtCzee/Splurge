@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splurge">
+
         <activity
             android:name=".ui.signup.Signup"
             android:exported="false" />
@@ -40,6 +41,10 @@
             android:exported="false" />
         <activity
             android:name=".ui.main.MainActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.graph.CategorySpendingGraphActivity"
             android:exported="false" />
     </application>
 
