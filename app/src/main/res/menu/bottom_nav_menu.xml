@@ -9,6 +9,10 @@
         android:icon="@android:drawable/ic_menu_agenda"
         android:title="Transactions" />
     <item
+        android:id="@+id/navigation_bills"
+        android:icon="@android:drawable/ic_menu_recent_history"
+        android:title="Bills" />
+    <item
         android:id="@+id/navigation_budgets"
         android:icon="@android:drawable/ic_menu_save"
         android:title="Budgets" />
