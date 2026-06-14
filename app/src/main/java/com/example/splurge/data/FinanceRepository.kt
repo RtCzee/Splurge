@@ -2,6 +2,9 @@ package com.example.splurge.data
 
 import android.content.Context
 import com.example.splurge.data.local.AppDatabase
+import com.example.splurge.data.local.BillEntity
+import com.example.splurge.data.local.BillRecurrence
+import com.example.splurge.data.local.BillStatus
 import com.example.splurge.data.local.BudgetGoalEntity
 import com.example.splurge.data.local.CategoryEntity
 import com.example.splurge.data.local.CategorySpendTotal
@@ -12,6 +15,10 @@ import com.example.splurge.data.local.TransactionEntity
 import com.example.splurge.data.local.TransactionListItem
 import com.example.splurge.data.local.TransactionType
 import com.example.splurge.data.local.UserEntity
+import com.example.splurge.notifications.BillReminderPreferences
+import com.example.splurge.notifications.BillReminderScheduler
+import java.time.LocalDate
+import java.time.ZoneId
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
@@ -27,6 +34,7 @@ class FinanceRepository private constructor(context: Context) {
 
     // Keep a single database connection for the lifetime of the repository.
     private val database = AppDatabase.getInstance(context)
+    private val applicationContext = context.applicationContext
 
     /** Saves a category if the supplied name is not blank. */
     fun addCategory(name: String): Boolean {
@@ -169,6 +177,126 @@ class FinanceRepository private constructor(context: Context) {
         return database.transactionDao().getTransactionCountForPeriod(startDate, endDate)
     }
 
+    /** Saves a bill and schedules any reminders that should fire before its due date. */
+    fun addBill(
+        name: String,
+        dueDate: String,
+        amount: Double?,
+        recurrence: BillRecurrence,
+        notes: String?
+    ): Long {
+        val billId = database.billDao().insert(
+            BillEntity(
+                name = name.trim(),
+                dueDate = dueDate,
+                amount = amount,
+                recurrence = recurrence,
+                notes = notes?.trim().orEmpty().takeIf { it.isNotEmpty() }
+            )
+        )
+        rescheduleBillReminders(billId)
+        return billId
+    }
+
+    /** Returns every bill in due-date order. */
+    fun getBills(): List<BillEntity> {
+        return database.billDao().getAllBills()
+    }
+
+    /** Returns only the bills that still need attention. */
+    fun getActiveBills(): List<BillEntity> {
+        return database.billDao().getActiveBills()
+    }
+
+    /** Returns paid and archived bills for the history screen. */
+    fun getHistoricBills(): List<BillEntity> {
+        return database.billDao().getHistoricBills()
+    }
+
+    /** Looks up one bill by id so the UI can update or act on it safely. */
+    fun getBillById(billId: Long): BillEntity? {
+        return database.billDao().getBillById(billId)
+    }
+
+    /** Updates a bill row and immediately re-syncs its reminder alarms. */
+    fun updateBill(bill: BillEntity) {
+        database.billDao().update(bill)
+        rescheduleBillReminders(bill.id)
+    }
+
+    /** Marks a bill as paid and rolls recurring bills forward to their next cycle. */
+    fun markBillPaid(billId: Long) {
+        val bill = database.billDao().getBillById(billId) ?: return
+        val paidAtMillis = System.currentTimeMillis()
+        val updatedBill = when (bill.recurrence) {
+            BillRecurrence.ONE_TIME -> bill.copy(
+                status = BillStatus.PAID,
+                paidAtMillis = paidAtMillis,
+                snoozedUntilMillis = null
+            )
+            else -> bill.copy(
+                dueDate = calculateNextDueDate(bill.dueDate, bill.recurrence),
+                paidAtMillis = paidAtMillis,
+                snoozedUntilMillis = null
+            )
+        }
+
+        database.billDao().update(updatedBill)
+        rescheduleBillReminders(updatedBill.id)
+    }
+
+    /** Snoozes an active reminder for a bill by the requested number of days. */
+    fun snoozeBill(billId: Long, snoozeDays: Int) {
+        val bill = database.billDao().getBillById(billId) ?: return
+        val snoozedUntil = System.currentTimeMillis() + snoozeDays.coerceAtLeast(1) * MILLIS_PER_DAY
+        database.billDao().update(bill.copy(snoozedUntilMillis = snoozedUntil))
+        rescheduleBillReminders(billId)
+    }
+
+    /** Archives a bill without deleting its payment history. */
+    fun archiveBill(billId: Long) {
+        val bill = database.billDao().getBillById(billId) ?: return
+        database.billDao().update(
+            bill.copy(
+                status = BillStatus.ARCHIVED,
+                snoozedUntilMillis = null
+            )
+        )
+        BillReminderScheduler.cancelBill(applicationContext, billId)
+    }
+
+    /** Deletes a bill permanently when the user wants to remove it completely. */
+    fun deleteBill(billId: Long) {
+        val bill = database.billDao().getBillById(billId) ?: return
+        database.billDao().delete(bill)
+        BillReminderScheduler.cancelBill(applicationContext, billId)
+    }
+
+    /** Reschedules every reminder associated with the selected bill. */
+    fun rescheduleBillReminders(billId: Long) {
+        val bill = database.billDao().getBillById(billId) ?: return
+        BillReminderScheduler.cancelBill(applicationContext, billId)
+
+        if (bill.status != BillStatus.ACTIVE) {
+            return
+        }
+
+        val reminderDays = BillReminderPreferences(applicationContext).getReminderIntervals()
+        BillReminderScheduler.scheduleBill(applicationContext, bill, reminderDays)
+    }
+
+    /** Reschedules all bill reminders after app startup or a settings change. */
+    fun rescheduleAllBillReminders() {
+        val preferences = BillReminderPreferences(applicationContext)
+        if (!preferences.areBillRemindersEnabled()) {
+            BillReminderScheduler.cancelAll(applicationContext)
+            return
+        }
+
+        val reminderDays = preferences.getReminderIntervals()
+        BillReminderScheduler.rescheduleAll(applicationContext, getActiveBills(), reminderDays)
+    }
+
     /** Creates a new local account if the email address is not already registered. */
     fun registerUser(
         fullName: String,
@@ -220,6 +348,17 @@ class FinanceRepository private constructor(context: Context) {
         return email.trim().lowercase(Locale.ROOT)
     }
 
+    private fun calculateNextDueDate(currentDueDate: String, recurrence: BillRecurrence): String {
+        val dueDate = LocalDate.parse(currentDueDate)
+        return when (recurrence) {
+            BillRecurrence.ONE_TIME -> dueDate.toString()
+            BillRecurrence.WEEKLY -> dueDate.plusWeeks(1).toString()
+            BillRecurrence.MONTHLY -> dueDate.plusMonths(1).toString()
+            BillRecurrence.QUARTERLY -> dueDate.plusMonths(3).toString()
+            BillRecurrence.YEARLY -> dueDate.plusYears(1).toString()
+        }
+    }
+
     private fun createSalt(): String {
         val saltBytes = ByteArray(SALT_LENGTH)
         SecureRandom().nextBytes(saltBytes)
@@ -237,6 +376,7 @@ class FinanceRepository private constructor(context: Context) {
         @Volatile
         private var INSTANCE: FinanceRepository? = null
         private const val SALT_LENGTH = 16
+        private const val MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
 
         /** Provides the single repository instance shared across the application. */
         fun getInstance(context: Context): FinanceRepository {

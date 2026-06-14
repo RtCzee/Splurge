@@ -14,4 +14,9 @@
         <item quantity="one">%1$d transaction in this period</item>
         <item quantity="other">%1$d transactions in this period</item>
     </plurals>
+
+    <plurals name="active_bill_count">
+        <item quantity="one">%1$d active bill</item>
+        <item quantity="other">%1$d active bills</item>
+    </plurals>
 </resources>

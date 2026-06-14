@@ -2,7 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
+        android:name=".SplurgeApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -30,6 +34,9 @@
             android:name=".ui.transactions.Transactions"
             android:exported="false" />
         <activity
+            android:name=".ui.bills.Bills"
+            android:exported="false" />
+        <activity
             android:name=".ui.profile.Profile"
             android:exported="false" />
         <activity
@@ -41,6 +48,17 @@
         <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
+
+        <receiver
+            android:name=".notifications.BillReminderReceiver"
+            android:exported="false" />
+        <receiver
+            android:name=".notifications.BillReminderBootReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
