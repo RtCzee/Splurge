@@ -15,6 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Splurge">
+
         <activity
             android:name=".ui.signup.Signup"
             android:exported="false" />
@@ -59,6 +60,9 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <activity
+            android:name=".ui.graph.CategorySpendingGraphActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

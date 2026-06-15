@@ -1,5 +1,6 @@
 package com.example.splurge.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import android.content.Intent
 import android.view.LayoutInflater
@@ -8,12 +9,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.card.MaterialCardView
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
 import com.example.splurge.notifications.BillReminderPreferences
 import com.example.splurge.ui.bills.Bills
 import com.example.splurge.ui.base.BaseActivity
 import com.example.splurge.ui.common.FinanceUiFormatter
+import com.example.splurge.ui.graph.CategorySpendingGraphActivity
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
@@ -63,6 +66,7 @@ class MainActivity : BaseActivity() {
         setupBillsShortcut()
         refreshDashboardFromDatabase()
         setupBottomNavigation(R.id.navigation_dashboard)
+        setupAnalyticsNavigation()
     }
 
     // Refresh when returning from other screens because goals and expenses may have changed.
@@ -313,5 +317,14 @@ class MainActivity : BaseActivity() {
         val expenses: Double,
         val savingsGoal: Double
     )
+
+    private fun setupAnalyticsNavigation() {
+        val analyticsCard = findViewById<MaterialCardView>(R.id.analytics_card)
+        analyticsCard?.setOnClickListener {
+            val intent = Intent(this, CategorySpendingGraphActivity::class.java)
+            startActivity(intent)
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+        }
+    }
 }
 
