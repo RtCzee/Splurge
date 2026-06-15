@@ -4,6 +4,7 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.splurge.R
 import com.example.splurge.ui.budgets.Budgets
+import com.example.splurge.ui.bills.Bills
 import com.example.splurge.ui.goals.Goals
 import com.example.splurge.ui.main.MainActivity
 import com.example.splurge.ui.profile.Profile
@@ -38,6 +39,12 @@ abstract class BaseActivity : AppCompatActivity() {
                 }
                 R.id.navigation_transactions -> {
                     startActivity(Intent(this, Transactions::class.java))
+                    finish()
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
+                    true
+                }
+                R.id.navigation_bills -> {
+                    startActivity(Intent(this, Bills::class.java))
                     finish()
                     overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
                     true

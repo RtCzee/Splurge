@@ -18,9 +18,10 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         BudgetGoalEntity::class,
         SavingsGoalEntity::class,
         TransactionEntity::class,
-        UserEntity::class
+        UserEntity::class,
+        BillEntity::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -40,6 +41,9 @@ abstract class AppDatabase : RoomDatabase() {
 
     /** DAO for unified transactions. */
     abstract fun transactionDao(): TransactionDao
+
+    /** DAO for bills and bill history. */
+    abstract fun billDao(): BillDao
 
     /** DAO for local account registration and sign-in. */
     abstract fun userDao(): UserDao
@@ -93,6 +97,33 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `bills` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `dueDate` TEXT NOT NULL,
+                        `amount` REAL,
+                        `recurrence` TEXT NOT NULL,
+                        `notes` TEXT,
+                        `status` TEXT NOT NULL,
+                        `snoozedUntilMillis` INTEGER,
+                        `createdAtMillis` INTEGER NOT NULL,
+                        `paidAtMillis` INTEGER
+                    )
+                    """.trimIndent()
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_bills_dueDate` ON `bills`(`dueDate`)"
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS `index_bills_status` ON `bills`(`status`)"
+                )
+            }
+        }
+
         /** Builds or returns the existing Room database instance. */
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -101,7 +132,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "splurge_room.db"
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
                     // This project currently recreates the database if the schema changes.
                     .fallbackToDestructiveMigration()
                     // Queries are allowed on the main thread to keep the sample app simple.

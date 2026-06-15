@@ -2,6 +2,7 @@ package com.example.splurge.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.content.Intent
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
@@ -11,6 +12,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.notifications.BillReminderPreferences
+import com.example.splurge.ui.bills.Bills
 import com.example.splurge.ui.base.BaseActivity
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.example.splurge.ui.graph.CategorySpendingGraphActivity
@@ -28,6 +31,7 @@ import java.util.Locale
  */
 class MainActivity : BaseActivity() {
     private lateinit var repository: FinanceRepository
+    private lateinit var reminderPreferences: BillReminderPreferences
 
     // These defaults let the dashboard render immediately before live values are loaded.
     private var dashboardOverview = DashboardOverview(
@@ -51,6 +55,7 @@ class MainActivity : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
         repository = FinanceRepository.getInstance(this)
+        reminderPreferences = BillReminderPreferences(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -58,6 +63,7 @@ class MainActivity : BaseActivity() {
         }
 
         setupCalculatorButton()
+        setupBillsShortcut()
         refreshDashboardFromDatabase()
         setupBottomNavigation(R.id.navigation_dashboard)
         setupAnalyticsNavigation()
@@ -73,6 +79,13 @@ class MainActivity : BaseActivity() {
     private fun setupCalculatorButton() {
         findViewById<MaterialButton>(R.id.calculate_splurge_button).setOnClickListener {
             showSplurgeCalculatorDialog()
+        }
+    }
+
+    /** Opens the bills screen from the dashboard summary card. */
+    private fun setupBillsShortcut() {
+        findViewById<MaterialButton>(R.id.open_bills_button).setOnClickListener {
+            startActivity(Intent(this, Bills::class.java))
         }
     }
 
@@ -194,6 +207,7 @@ class MainActivity : BaseActivity() {
             spendingNote = getString(R.string.dashboard_spending_note_value, FinanceUiFormatter.formatMonthLabel(currentMonth))
         )
         applySplurgeCalculation()
+        bindBillSummary()
     }
 
     /** Returns how much has been spent from the first to the last day of the current month. */
@@ -257,6 +271,23 @@ class MainActivity : BaseActivity() {
         } else {
             amount.toString()
         }
+    }
+
+    /** Mirrors the bill reminder state on the dashboard so due dates stay visible. */
+    private fun bindBillSummary() {
+        val activeBills = repository.getActiveBills()
+        findViewById<TextView>(R.id.bills_summary_value).text = resources.getQuantityString(
+            R.plurals.active_bill_count,
+            activeBills.size,
+            activeBills.size
+        )
+
+        val nextBill = activeBills.minByOrNull { bill ->
+            java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(bill.dueDate))
+        }
+        findViewById<TextView>(R.id.bills_summary_note).text = nextBill?.let {
+            com.example.splurge.ui.bills.BillUiFormatter.buildReminderPreview(this, it, reminderPreferences.getReminderIntervals())
+        } ?: getString(R.string.bill_next_due_empty_message)
     }
 
     /** Parses text input into a non-negative number for calculator use. */
