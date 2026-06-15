@@ -1,9 +1,9 @@
 package com.example.splurge.ui.main
 
-import android.content.Intent
 import android.os.Bundle
 import android.content.Intent
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.core.widget.doAfterTextChanged
@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.card.MaterialCardView
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.notifications.BillReminderPreferences
 import com.example.splurge.ui.bills.Bills
 import com.example.splurge.ui.base.BaseActivity
@@ -21,10 +22,8 @@ import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
-import java.text.NumberFormat
 import java.time.LocalDate
 import java.time.YearMonth
-import java.util.Locale
 
 /**
  * Dashboard screen that summarizes the user's current finances and splurge allowance.
@@ -32,6 +31,7 @@ import java.util.Locale
 class MainActivity : BaseActivity() {
     private lateinit var repository: FinanceRepository
     private lateinit var reminderPreferences: BillReminderPreferences
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     // These defaults let the dashboard render immediately before live values are loaded.
     private var dashboardOverview = DashboardOverview(
@@ -56,6 +56,7 @@ class MainActivity : BaseActivity() {
         setContentView(R.layout.activity_main)
         repository = FinanceRepository.getInstance(this)
         reminderPreferences = BillReminderPreferences(this)
+        privacyPreferences = PrivacyPreferences(this)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -96,30 +97,51 @@ class MainActivity : BaseActivity() {
         } else {
             0
         }
+        val privacyEnabled = privacyPreferences.isHideBalancesEnabled()
+        val currentBalanceValue = privacyPreferences.formatCurrency(overview.currentBalance)
+        val todaySpendingValue = privacyPreferences.formatCurrency(overview.todaySpending)
+        val splurgeMoneyValue = privacyPreferences.formatCurrency(overview.splurgeMoney)
+        val budgetRemainingValue = privacyPreferences.formatCurrency(overview.budgetRemaining)
+        val monthlyBudgetValue = privacyPreferences.formatCurrency(overview.monthlyBudget)
 
-        findViewById<TextView>(R.id.current_balance_value).text = formatCurrency(overview.currentBalance)
+        findViewById<TextView>(R.id.current_balance_value).text = currentBalanceValue
         findViewById<TextView>(R.id.balance_note).text =
-            getString(R.string.dashboard_balance_note_value, formatCurrency(overview.splurgeMoney))
-        findViewById<TextView>(R.id.today_spending_value).text = formatCurrency(overview.todaySpending)
+            if (privacyEnabled) {
+                getString(R.string.privacy_hidden_message)
+            } else {
+                getString(R.string.dashboard_balance_note_value, splurgeMoneyValue)
+            }
+        findViewById<TextView>(R.id.today_spending_value).text = todaySpendingValue
         findViewById<TextView>(R.id.today_spending_note).text = overview.spendingNote
-        findViewById<TextView>(R.id.splurge_money_value).text = formatCurrency(overview.splurgeMoney)
-        findViewById<TextView>(R.id.splurge_money_note).text = overview.splurgeNote
-        findViewById<TextView>(R.id.budget_status_value).text = overview.budgetStatus
-        findViewById<TextView>(R.id.budget_status_caption).text = if (overview.monthlyBudget > 0.0) {
+        findViewById<TextView>(R.id.splurge_money_value).text = splurgeMoneyValue
+        findViewById<TextView>(R.id.splurge_money_note).text =
+            if (privacyEnabled) getString(R.string.privacy_hidden_message) else overview.splurgeNote
+        findViewById<TextView>(R.id.budget_status_value).text =
+            if (privacyEnabled) getString(R.string.privacy_hidden_value) else overview.budgetStatus
+        findViewById<TextView>(R.id.budget_status_caption).text = if (privacyEnabled) {
+            getString(R.string.privacy_hidden_message)
+        } else if (overview.monthlyBudget > 0.0) {
             getString(R.string.dashboard_budget_used_percent, budgetUsedPercent)
         } else {
             getString(R.string.dashboard_budget_goal_missing_caption)
         }
         findViewById<TextView>(R.id.budget_status_note).text = if (overview.monthlyBudget > 0.0) {
-            getString(
-                R.string.dashboard_budget_status_note,
-                formatCurrency(overview.budgetRemaining),
-                formatCurrency(overview.monthlyBudget)
-            )
+            if (privacyEnabled) {
+                getString(R.string.privacy_hidden_message)
+            } else {
+                getString(
+                    R.string.dashboard_budget_status_note,
+                    budgetRemainingValue,
+                    monthlyBudgetValue
+                )
+            }
         } else {
             getString(R.string.dashboard_budget_goal_missing_note)
         }
-        findViewById<LinearProgressIndicator>(R.id.budget_status_progress).progress = budgetUsedPercent
+        findViewById<LinearProgressIndicator>(R.id.budget_status_progress).apply {
+            visibility = if (privacyEnabled) View.GONE else View.VISIBLE
+            progress = if (privacyEnabled) 0 else budgetUsedPercent
+        }
     }
 
     /** Opens the calculator dialog and keeps its result synced as inputs change. */
@@ -149,11 +171,16 @@ class MainActivity : BaseActivity() {
             )
 
             val calculatedSplurge = applySplurgeCalculation()
-            resultView.text = formatCurrency(calculatedSplurge)
-            noteView.text = buildSplurgeNote(
-                calculatorInput = calculatorInput,
-                splurgeMoney = calculatedSplurge
-            )
+            if (privacyPreferences.isHideBalancesEnabled()) {
+                resultView.text = getString(R.string.privacy_hidden_value)
+                noteView.text = getString(R.string.privacy_hidden_message)
+            } else {
+                resultView.text = privacyPreferences.formatCurrency(calculatedSplurge)
+                noteView.text = buildSplurgeNote(
+                    calculatorInput = calculatorInput,
+                    splurgeMoney = calculatedSplurge
+                )
+            }
         }
 
         incomeInput.doAfterTextChanged { updateCalculator() }
@@ -252,16 +279,11 @@ class MainActivity : BaseActivity() {
         } else {
             getString(
                 R.string.calculator_result_breakdown,
-                formatCurrency(calculatorInput.income),
-                formatCurrency(calculatorInput.expenses),
-                formatCurrency(calculatorInput.savingsGoal)
+                privacyPreferences.formatCurrency(calculatorInput.income),
+                privacyPreferences.formatCurrency(calculatorInput.expenses),
+                privacyPreferences.formatCurrency(calculatorInput.savingsGoal)
             )
         }
-    }
-
-    /** Formats dashboard amounts as South African currency. */
-    private fun formatCurrency(amount: Double): String {
-        return NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-ZA")).format(amount)
     }
 
     /** Keeps numeric fields tidy by dropping the decimal when the value is a whole number. */
@@ -282,9 +304,13 @@ class MainActivity : BaseActivity() {
             activeBills.size
         )
 
-        val nextBill = activeBills.minByOrNull { bill ->
-            java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(bill.dueDate))
-        }
+        val nextBill = activeBills.mapNotNull { bill ->
+            com.example.splurge.ui.common.FinanceUiFormatter.parseDateOrNull(bill.dueDate)?.let { dueDate ->
+                bill to dueDate
+            }
+        }.minByOrNull { (_, dueDate) ->
+            java.time.temporal.ChronoUnit.DAYS.between(LocalDate.now(), dueDate)
+        }?.first
         findViewById<TextView>(R.id.bills_summary_note).text = nextBill?.let {
             com.example.splurge.ui.bills.BillUiFormatter.buildReminderPreview(this, it, reminderPreferences.getReminderIntervals())
         } ?: getString(R.string.bill_next_due_empty_message)

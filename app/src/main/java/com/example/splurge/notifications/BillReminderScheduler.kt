@@ -155,7 +155,9 @@ object BillReminderScheduler {
     }
 
     internal fun calculateTriggerMillis(dueDate: String, daysBefore: Int): Long? {
-        val reminderDate = LocalDate.parse(dueDate).minusDays(daysBefore.toLong())
+        val parsedDueDate = com.example.splurge.ui.common.FinanceUiFormatter.parseDateOrNull(dueDate)
+            ?: return null
+        val reminderDate = parsedDueDate.minusDays(daysBefore.toLong())
         if (reminderDate.isBefore(LocalDate.now())) {
             return null
         }

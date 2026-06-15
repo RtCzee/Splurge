@@ -10,10 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.splurge.R
-import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.FinanceRepository
 import com.example.splurge.ui.login.Login
-import com.example.splurge.ui.main.MainActivity
 import com.example.splurge.ui.welcome.Welcome
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
@@ -21,12 +19,10 @@ import com.google.android.material.textfield.TextInputLayout
 
 class Signup : AppCompatActivity() {
     private lateinit var repository: FinanceRepository
-    private lateinit var sessionManager: AuthSessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         repository = FinanceRepository.getInstance(this)
-        sessionManager = AuthSessionManager(this)
         enableEdgeToEdge()
         setContentView(R.layout.activity_signup)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -122,8 +118,8 @@ class Signup : AppCompatActivity() {
                 nameLayout.error = null
                 emailLayout.error = null
                 passwordLayout.error = null
-                sessionManager.saveUserSession(result.userId)
-                openDashboard()
+                Toast.makeText(this, R.string.signup_success_message, Toast.LENGTH_SHORT).show()
+                openLogin(email)
             }
             FinanceRepository.RegistrationResult.EmailAlreadyExists -> {
                 emailLayout.error = getString(R.string.auth_signup_email_exists)
@@ -144,11 +140,21 @@ class Signup : AppCompatActivity() {
         finish()
     }
 
+    private fun openLogin(prefillEmail: String) {
+        startActivity(
+            Intent(this, Login::class.java).apply {
+                putExtra(Login.EXTRA_PREFILL_EMAIL, prefillEmail)
+            }
+        )
+        finish()
+    }
+
     private fun openDashboard() {
         startActivity(
-            Intent(this, MainActivity::class.java).apply {
+            Intent(this, com.example.splurge.ui.main.MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+        finish()
     }
 }

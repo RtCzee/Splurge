@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.splurge.R
 import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.GoalRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.ProgressUpdateResult
 import com.example.splurge.data.local.GoalEntity
 import kotlinx.coroutines.launch
@@ -35,8 +36,8 @@ class GoalDetailActivity : AppCompatActivity() {
 
     private var goalId: Long = -1
     private var currentUserId: Long = -1L
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +45,7 @@ class GoalDetailActivity : AppCompatActivity() {
 
         repository = GoalRepository(this)
         authSessionManager = AuthSessionManager(this)
+        privacyPreferences = PrivacyPreferences(this)
 
         currentUserId = authSessionManager.getSignedInUserId() ?: -1L
         goalId = intent.getLongExtra("goal_id", -1)
@@ -96,17 +98,22 @@ class GoalDetailActivity : AppCompatActivity() {
         val progress = if (goal.targetAmount > 0) {
             ((goal.currentAmount / goal.targetAmount) * 100).toFloat()
         } else 0f
+        val privacyEnabled = privacyPreferences.isHideBalancesEnabled()
 
         tvGoalName.text = goal.name
-        tvTargetAmount.text = currencyFormat.format(goal.targetAmount)
-        tvCurrentAmount.text = currencyFormat.format(goal.currentAmount)
-        tvProgressPercentage.text = String.format(Locale.US, "%.1f%%", progress)
+        tvTargetAmount.text = privacyPreferences.formatCurrency(goal.targetAmount)
+        tvCurrentAmount.text = privacyPreferences.formatCurrency(goal.currentAmount)
+        tvProgressPercentage.text = if (privacyEnabled) {
+            getString(R.string.privacy_hidden_value)
+        } else {
+            String.format(Locale.US, "%.1f%%", progress)
+        }
         tvCategory.text = goal.category
         tvDeadline.text = dateFormat.format(goal.deadline)
         tvNotes.text = goal.notes.ifEmpty { "No notes added" }
 
         progressBar.max = 100
-        progressBar.progress = progress.toInt()
+        progressBar.progress = if (privacyEnabled) 0 else progress.toInt()
 
         val progressColor = when {
             progress >= 90f -> android.R.color.holo_green_dark

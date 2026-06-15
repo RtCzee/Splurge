@@ -12,7 +12,7 @@ activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
 ksp = "2.2.10-2.0.2"
 #noinspection GradleDependency
-room = "2.6.1"
+room = "2.7.0"
 recyclerview = "1.4.0"
 #noinspection GradleDependency
 lifecycleRuntimeKtx = "2.8.7"

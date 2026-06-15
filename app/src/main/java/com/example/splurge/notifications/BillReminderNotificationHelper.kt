@@ -7,9 +7,8 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.BillEntity
-import java.text.NumberFormat
-import java.util.Locale
 
 /**
  * Builds the notification payload shown when a bill reminder fires.
@@ -93,9 +92,17 @@ object BillReminderNotificationHelper {
         daysBefore: Int,
         isSnooze: Boolean
     ): String {
-        val amountSuffix = bill.amount?.let {
-            context.getString(R.string.bill_reminder_amount_suffix, formatCurrency(it))
-        }.orEmpty()
+        val privacyPreferences = PrivacyPreferences(context)
+        val amountSuffix = if (privacyPreferences.isHideBalancesEnabled()) {
+            ""
+        } else {
+            bill.amount?.let {
+                context.getString(
+                    R.string.bill_reminder_amount_suffix,
+                    privacyPreferences.formatCurrency(it)
+                )
+            }.orEmpty()
+        }
 
         return when {
             isSnooze -> context.getString(
@@ -117,7 +124,4 @@ object BillReminderNotificationHelper {
         }
     }
 
-    private fun formatCurrency(amount: Double): String {
-        return NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-ZA")).format(amount)
-    }
 }

@@ -1,31 +1,46 @@
 package com.example.splurge.ui.profile
 
 import android.content.Intent
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.splurge.R
 import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.ui.base.BaseActivity
+import com.example.splurge.ui.login.Login
 import com.example.splurge.ui.welcome.Welcome
 import com.example.splurge.notifications.BillReminderPreferences
 import com.example.splurge.notifications.NotificationPermissionChecker
 import com.google.android.material.button.MaterialButton
-import androidx.appcompat.widget.SwitchCompat
+import java.io.File
+import java.io.FileOutputStream
 
 /**
- * Placeholder profile screen that currently just hosts the shared bottom navigation.
+ * Settings screen that works for both guests and signed-in users.
  */
 class Profile : BaseActivity() {
     private lateinit var repository: FinanceRepository
     private lateinit var sessionManager: AuthSessionManager
     private lateinit var reminderPreferences: BillReminderPreferences
+    private lateinit var privacyPreferences: PrivacyPreferences
     private var updatingReminderSwitches = false
+
+    private val profilePhotoPicker =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            if (uri != null) {
+                saveProfilePhoto(uri)
+            }
+        }
 
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -42,6 +57,8 @@ class Profile : BaseActivity() {
         repository = FinanceRepository.getInstance(this)
         sessionManager = AuthSessionManager(this)
         reminderPreferences = BillReminderPreferences(this)
+        privacyPreferences = PrivacyPreferences(this)
+
         enableEdgeToEdge()
         setContentView(R.layout.activity_profile)
 
@@ -51,30 +68,51 @@ class Profile : BaseActivity() {
             insets
         }
 
-        bindProfileSummary()
+        setupAccountSection()
+        setupPrivacySettings()
         setupNotificationSettings()
-        setupSessionAction()
         setupBottomNavigation(R.id.navigation_profile)
     }
 
     override fun onResume() {
         super.onResume()
-        bindProfileSummary()
+        setupAccountSection()
+        syncPrivacySettings()
         syncNotificationSettings()
     }
 
-    private fun bindProfileSummary() {
-        val sessionUserId = sessionManager.getSignedInUserId()
-        val user = sessionUserId?.let(repository::getUserById)
-        findViewById<TextView>(R.id.profile_name).text = user?.fullName ?: getString(R.string.profile_guest_name)
-        findViewById<TextView>(R.id.profile_email).text = user?.email ?: getString(R.string.profile_guest_email)
+    private fun setupAccountSection() {
+        val user = getSignedInUser()
+        val avatar = findViewById<ImageView>(R.id.profile_avatar)
+        val profileName = findViewById<TextView>(R.id.profile_name)
+        val profileEmail = findViewById<TextView>(R.id.profile_email)
+        val profileStatus = findViewById<TextView>(R.id.profile_status_text)
+        val photoHint = findViewById<TextView>(R.id.profile_photo_hint)
+        val photoAction = findViewById<MaterialButton>(R.id.buttonProfilePhotoAction)
+        val photoRemove = findViewById<MaterialButton>(R.id.buttonProfilePhotoRemove)
+        val sessionAction = findViewById<MaterialButton>(R.id.buttonProfileSessionAction)
 
-        findViewById<MaterialButton>(R.id.buttonProfileSessionAction).text =
-            if (user == null) getString(R.string.profile_login_button) else getString(R.string.profile_logout_button)
-    }
+        if (user == null) {
+            profileName.text = getString(R.string.profile_guest_name)
+            profileEmail.text = getString(R.string.profile_guest_email)
+            profileStatus.text = getString(R.string.settings_guest_message)
+            photoHint.text = getString(R.string.settings_photo_guest_hint)
+            avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            photoAction.visibility = android.view.View.GONE
+            photoRemove.visibility = android.view.View.GONE
+            sessionAction.text = getString(R.string.settings_sign_in_button)
+            sessionAction.setOnClickListener {
+                startActivity(Intent(this, Login::class.java))
+            }
+            return
+        }
 
-    private fun setupSessionAction() {
-        findViewById<MaterialButton>(R.id.buttonProfileSessionAction).setOnClickListener {
+        profileName.text = user.fullName
+        profileEmail.text = user.email
+        profileStatus.text = getString(R.string.settings_logged_in_message)
+        photoHint.text = getString(R.string.settings_photo_ready_hint)
+        sessionAction.text = getString(R.string.settings_sign_out_button)
+        sessionAction.setOnClickListener {
             sessionManager.clearUserSession()
             startActivity(
                 Intent(this, Welcome::class.java).apply {
@@ -83,9 +121,42 @@ class Profile : BaseActivity() {
             )
             finish()
         }
+
+        val hasPhoto = loadProfilePhoto(avatar, user.id, user.profilePicturePath)
+        photoAction.visibility = android.view.View.VISIBLE
+        photoAction.text = if (hasPhoto) {
+            getString(R.string.settings_change_photo_button)
+        } else {
+            getString(R.string.settings_add_photo_button)
+        }
+        photoAction.setOnClickListener {
+            profilePhotoPicker.launch("image/*")
+        }
+
+        photoRemove.visibility = if (hasPhoto) android.view.View.VISIBLE else android.view.View.GONE
+        photoRemove.setOnClickListener {
+            clearProfilePhoto(avatar, user.id)
+        }
     }
 
-    /** Wires the notification switches to the persisted reminder preferences. */
+    private fun setupPrivacySettings() {
+        val hideBalancesSwitch = findViewById<SwitchCompat>(R.id.hide_balances_switch)
+        hideBalancesSwitch.setOnCheckedChangeListener { _, isChecked ->
+            privacyPreferences.setHideBalancesEnabled(isChecked)
+            Toast.makeText(
+                this,
+                if (isChecked) R.string.settings_privacy_enabled_message else R.string.settings_privacy_disabled_message,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+        syncPrivacySettings()
+    }
+
+    private fun syncPrivacySettings() {
+        findViewById<SwitchCompat>(R.id.hide_balances_switch).isChecked =
+            privacyPreferences.isHideBalancesEnabled()
+    }
+
     private fun setupNotificationSettings() {
         val pushSwitch = findViewById<SwitchCompat>(R.id.push_notifications_switch)
         val billRemindersSwitch = findViewById<SwitchCompat>(R.id.bill_reminders_switch)
@@ -148,7 +219,6 @@ class Profile : BaseActivity() {
         syncNotificationSettings()
     }
 
-    /** Applies the stored reminder preferences to the visible switches. */
     private fun syncNotificationSettings() {
         updatingReminderSwitches = true
 
@@ -175,5 +245,65 @@ class Profile : BaseActivity() {
         oneDaySwitch.isEnabled = remindersEnabled
 
         updatingReminderSwitches = false
+    }
+
+    private fun getSignedInUser() = sessionManager.getSignedInUserId()?.let(repository::getUserById)
+
+    private fun loadProfilePhoto(avatar: ImageView, userId: Long, storedPath: String?): Boolean {
+        val photoFile = storedPath?.let(::File)
+        if (photoFile == null || !photoFile.exists()) {
+            avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            if (storedPath != null) {
+                repository.updateUserProfilePicturePath(userId, null)
+            }
+            return false
+        }
+
+        val bitmap = BitmapFactory.decodeFile(photoFile.absolutePath)
+        if (bitmap == null) {
+            avatar.setImageResource(R.drawable.ic_launcher_foreground)
+            return false
+        }
+
+        avatar.setImageBitmap(bitmap)
+        return true
+    }
+
+    private fun saveProfilePhoto(uri: Uri) {
+        val user = getSignedInUser()
+        if (user == null) {
+            Toast.makeText(this, R.string.settings_photo_guest_hint, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val photoDir = File(filesDir, "profile_photos")
+        if (!photoDir.exists()) {
+            photoDir.mkdirs()
+        }
+
+        val photoFile = File(photoDir, "profile_${user.id}.jpg")
+        contentResolver.openInputStream(uri)?.use { input ->
+            FileOutputStream(photoFile).use { output ->
+                input.copyTo(output)
+            }
+        } ?: run {
+            Toast.makeText(this, R.string.settings_photo_guest_hint, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        repository.updateUserProfilePicturePath(user.id, photoFile.absolutePath)
+        setupAccountSection()
+        Toast.makeText(this, R.string.settings_photo_saved_message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun clearProfilePhoto(avatar: ImageView, userId: Long) {
+        val user = repository.getUserById(userId) ?: return
+        user.profilePicturePath?.let { path ->
+            runCatching { File(path).delete() }
+        }
+        repository.updateUserProfilePicturePath(userId, null)
+        avatar.setImageResource(R.drawable.ic_launcher_foreground)
+        setupAccountSection()
+        Toast.makeText(this, R.string.settings_photo_removed_message, Toast.LENGTH_SHORT).show()
     }
 }

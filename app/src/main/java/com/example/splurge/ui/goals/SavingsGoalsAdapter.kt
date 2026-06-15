@@ -7,6 +7,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.SavingsGoalEntity
 import com.example.splurge.ui.common.FinanceUiFormatter
 
@@ -45,6 +46,7 @@ class SavingsGoalsAdapter : RecyclerView.Adapter<SavingsGoalsAdapter.SavingsGoal
 
         /** Fills the row with one goal's values and completion percentage. */
         fun bind(item: SavingsGoalEntity) {
+            val privacyPreferences = PrivacyPreferences(itemView.context)
             val progress = if (item.targetAmount > 0.0) {
                 ((item.currentAmount / item.targetAmount) * 100).toInt().coerceIn(0, 100)
             } else {
@@ -56,14 +58,22 @@ class SavingsGoalsAdapter : RecyclerView.Adapter<SavingsGoalsAdapter.SavingsGoal
                 R.string.goal_target_date_value,
                 FinanceUiFormatter.formatDisplayDate(item.targetDate)
             )
-            amountView.text = itemView.context.getString(
-                R.string.goal_amounts_value,
-                FinanceUiFormatter.formatCurrency(item.currentAmount),
-                FinanceUiFormatter.formatCurrency(item.targetAmount)
-            )
+            amountView.text = if (privacyPreferences.isHideBalancesEnabled()) {
+                itemView.context.getString(R.string.privacy_hidden_value)
+            } else {
+                itemView.context.getString(
+                    R.string.goal_amounts_value,
+                    privacyPreferences.formatCurrency(item.currentAmount),
+                    privacyPreferences.formatCurrency(item.targetAmount)
+                )
+            }
             progressView.max = 100
-            progressView.progress = progress
-            percentView.text = itemView.context.getString(R.string.goal_progress_percent, progress)
+            progressView.progress = if (privacyPreferences.isHideBalancesEnabled()) 0 else progress
+            percentView.text = if (privacyPreferences.isHideBalancesEnabled()) {
+                itemView.context.getString(R.string.privacy_hidden_value)
+            } else {
+                itemView.context.getString(R.string.goal_progress_percent, progress)
+            }
         }
     }
 }

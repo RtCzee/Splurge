@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.ExpenseListItem
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.google.android.material.button.MaterialButton
@@ -54,7 +55,7 @@ class ExpenseAdapter(
 
         /** Populates one expense row and toggles photo controls when an image exists. */
         fun bind(item: ExpenseListItem) {
-            amountValue.text = FinanceUiFormatter.formatCurrency(item.amount)
+            amountValue.text = PrivacyPreferences(itemView.context).formatCurrency(item.amount)
             descriptionValue.text = item.description
             categoryValue.text = item.categoryName
             dateValue.text = FinanceUiFormatter.formatDisplayDate(item.date)

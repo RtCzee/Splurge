@@ -9,6 +9,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.splurge.R
 import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.GoalRepository
+import com.example.splurge.data.PrivacyPreferences
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -30,6 +31,7 @@ class AddEditGoalActivity : AppCompatActivity() {
     private var goalId: Long = -1
     private var currentUserId: Long = -1L
     private val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +39,7 @@ class AddEditGoalActivity : AppCompatActivity() {
 
         repository = GoalRepository(this)
         authSessionManager = AuthSessionManager(this)
+        privacyPreferences = PrivacyPreferences(this)
 
         currentUserId = authSessionManager.getSignedInUserId() ?: -1L
         isEditMode = intent.getBooleanExtra("is_edit", false)
@@ -100,7 +103,13 @@ class AddEditGoalActivity : AppCompatActivity() {
             val goal = repository.getGoalById(goalId, currentUserId)
             if (goal != null) {
                 etGoalName.setText(goal.name)
-                etTargetAmount.setText(goal.targetAmount.toString())
+                etTargetAmount.setText(
+                    if (privacyPreferences.isHideBalancesEnabled()) {
+                        ""
+                    } else {
+                        goal.targetAmount.toString()
+                    }
+                )
                 etNotes.setText(goal.notes)
 
                 val categories = listOf("SAVING", "SPENDING_LIMIT", "INVESTMENT", "DEBT_PAYMENT", "OTHER")

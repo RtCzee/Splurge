@@ -8,8 +8,8 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.GoalEntity
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -18,7 +18,6 @@ class GoalAdapter(
 ) : RecyclerView.Adapter<GoalAdapter.GoalViewHolder>() {
 
     private var goals = listOf<GoalEntity>()
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
     private val dateFormat = SimpleDateFormat("MMM dd", Locale.getDefault())
 
     fun submitList(newGoals: List<GoalEntity>) {
@@ -49,18 +48,23 @@ class GoalAdapter(
         private val btnAddProgress: Button = itemView.findViewById(R.id.btnAddProgress)
 
         fun bind(goal: GoalEntity) {
+            val privacyPreferences = PrivacyPreferences(itemView.context)
             val progress = if (goal.targetAmount > 0) {
                 ((goal.currentAmount / goal.targetAmount) * 100).toFloat()
             } else 0f
 
             tvGoalName.text = goal.name
-            tvTargetAmount.text = currencyFormat.format(goal.targetAmount)
-            tvCurrentAmount.text = currencyFormat.format(goal.currentAmount)
+            tvTargetAmount.text = privacyPreferences.formatCurrency(goal.targetAmount)
+            tvCurrentAmount.text = privacyPreferences.formatCurrency(goal.currentAmount)
             tvCategory.text = goal.category
             tvDeadline.text = dateFormat.format(goal.deadline)
-            tvProgressPercentage.text = String.format(Locale.US, "%.0f%%", progress)
+            tvProgressPercentage.text = if (privacyPreferences.isHideBalancesEnabled()) {
+                itemView.context.getString(R.string.privacy_hidden_value)
+            } else {
+                String.format(Locale.US, "%.0f%%", progress)
+            }
             progressBar.max = 100
-            progressBar.progress = progress.toInt()
+            progressBar.progress = if (privacyPreferences.isHideBalancesEnabled()) 0 else progress.toInt()
 
             val progressColor = when {
                 progress >= 90f -> android.R.color.holo_green_dark

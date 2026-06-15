@@ -36,6 +36,11 @@ object FinanceUiFormatter {
         return LocalDate.parse(rawDate, DateTimeFormatter.ISO_LOCAL_DATE)
     }
 
+    /** Parses an ISO date string safely and returns null when the value is invalid. */
+    fun parseDateOrNull(rawDate: String): LocalDate? {
+        return runCatching { parseDate(rawDate) }.getOrNull()
+    }
+
     /** Converts a stored ISO date string into a friendlier on-screen label. */
     fun formatDisplayDate(rawDate: String): String {
         return parseDate(rawDate).format(displayDateFormatter)

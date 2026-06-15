@@ -289,9 +289,13 @@ class Bills : BaseActivity(), BillActionListener {
 
     /** Describes the next reminder in plain language for the summary card. */
     private fun buildNextReminderSummary(activeBills: List<BillEntity>, reminderDays: List<Int>): String {
-        val nextBill = activeBills.minByOrNull { bill ->
-            ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(bill.dueDate))
-        }
+        val nextBill = activeBills.mapNotNull { bill ->
+            FinanceUiFormatter.parseDateOrNull(bill.dueDate)?.let { dueDate ->
+                bill to dueDate
+            }
+        }.minByOrNull { (_, dueDate) ->
+            ChronoUnit.DAYS.between(LocalDate.now(), dueDate)
+        }?.first
         return nextBill?.let {
             BillUiFormatter.buildReminderPreview(this, it, reminderDays)
         } ?: getString(R.string.bill_next_due_empty_message)

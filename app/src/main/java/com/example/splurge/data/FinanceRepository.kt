@@ -344,12 +344,23 @@ class FinanceRepository private constructor(context: Context) {
         return database.userDao().getUserById(userId)
     }
 
+    /** Returns the saved profile photo path for a user, if one exists. */
+    fun getUserProfilePicturePath(userId: Long): String? {
+        return database.userDao().getProfilePicturePath(userId)
+    }
+
+    /** Saves or clears the profile photo path for a user. */
+    fun updateUserProfilePicturePath(userId: Long, profilePicturePath: String?) {
+        database.userDao().updateProfilePicturePath(userId, profilePicturePath)
+    }
+
     private fun normalizeEmail(email: String): String {
         return email.trim().lowercase(Locale.ROOT)
     }
 
     private fun calculateNextDueDate(currentDueDate: String, recurrence: BillRecurrence): String {
-        val dueDate = LocalDate.parse(currentDueDate)
+        val dueDate = runCatching { LocalDate.parse(currentDueDate) }.getOrNull()
+            ?: return currentDueDate
         return when (recurrence) {
             BillRecurrence.ONE_TIME -> dueDate.toString()
             BillRecurrence.WEEKLY -> dueDate.plusWeeks(1).toString()
