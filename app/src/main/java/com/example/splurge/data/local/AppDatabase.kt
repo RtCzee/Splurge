@@ -19,9 +19,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
         SavingsGoalEntity::class,
         TransactionEntity::class,
         UserEntity::class,
-        BillEntity::class
+        BillEntity::class,
+        GoalEntity::class,
+        GoalHistoryEntity::class
     ],
-    version = 5,
+    version = 6,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -48,10 +50,17 @@ abstract class AppDatabase : RoomDatabase() {
     /** DAO for local account registration and sign-in. */
     abstract fun userDao(): UserDao
 
+    /** DAO for monthly financial goals. */
+    abstract fun goalDao(): GoalDao
+
+    /** DAO for completed/missed goal history. */
+    abstract fun goalHistoryDao(): GoalHistoryDao
+
     companion object {
         // Volatile keeps the singleton safe when multiple threads ask for it.
         @Volatile
         private var INSTANCE: AppDatabase? = null
+
         private val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
@@ -124,6 +133,57 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Create goals table for monthly financial goals
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `goals` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `userId` INTEGER NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `targetAmount` REAL NOT NULL,
+                        `currentAmount` REAL NOT NULL DEFAULT 0,
+                        `category` TEXT NOT NULL,
+                        `notes` TEXT,
+                        `deadline` INTEGER NOT NULL,
+                        `status` TEXT NOT NULL DEFAULT 'IN_PROGRESS',
+                        `createdAt` INTEGER NOT NULL,
+                        `lastUpdated` INTEGER NOT NULL
+                    )
+                    """.trimIndent()
+                )
+
+                // Create indexes for goals table
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_goals_userId` ON `goals`(`userId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_goals_deadline` ON `goals`(`deadline`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_goals_status` ON `goals`(`status`)")
+
+                // Create goal_history table for tracking completed/missed goals
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS `goal_history` (
+                        `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        `goalId` INTEGER NOT NULL,
+                        `userId` INTEGER NOT NULL,
+                        `name` TEXT NOT NULL,
+                        `targetAmount` REAL NOT NULL,
+                        `finalAmount` REAL NOT NULL,
+                        `resultStatus` TEXT NOT NULL,
+                        `completedDate` INTEGER NOT NULL,
+                        `category` TEXT NOT NULL,
+                        `notes` TEXT,
+                        FOREIGN KEY(`goalId`) REFERENCES `goals`(`id`) ON DELETE CASCADE
+                    )
+                    """.trimIndent()
+                )
+
+                // Create indexes for goal_history table
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_history_userId` ON `goal_history`(`userId`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_history_completedDate` ON `goal_history`(`completedDate`)")
+            }
+        }
+
         /** Builds or returns the existing Room database instance. */
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -132,7 +192,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "splurge_room.db"
                 )
-                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                    .addMigrations(MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                     // This project currently recreates the database if the schema changes.
                     .fallbackToDestructiveMigration()
                     // Queries are allowed on the main thread to keep the sample app simple.

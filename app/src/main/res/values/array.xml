@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="goal_categories">
+        <item>SAVING</item>
+        <item>SPENDING_LIMIT</item>
+        <item>INVESTMENT</item>
+        <item>DEBT_PAYMENT</item>
+        <item>OTHER</item>
+    </string-array>
+</resources>
