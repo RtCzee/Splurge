@@ -1,6 +1,7 @@
 package com.example.splurge.data.local
 
 import androidx.room.TypeConverter
+import java.util.Date
 
 class Converters {
     @TypeConverter
@@ -31,5 +32,17 @@ class Converters {
     @TypeConverter
     fun toBillStatus(value: String): BillStatus {
         return BillStatus.valueOf(value)
+    }
+
+    // ========== DATE CONVERTERS for GoalEntity and GoalHistoryEntity ==========
+
+    @TypeConverter
+    fun fromTimestamp(value: Long?): Date? {
+        return value?.let { Date(it) }
+    }
+
+    @TypeConverter
+    fun dateToTimestamp(date: Date?): Long? {
+        return date?.time
     }
 }
