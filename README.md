@@ -38,6 +38,8 @@ In the future, Splurge will evolve into a smart financial companion that provide
  youtube demo video
 - **Demo video**: https://youtu.be/Ji0rbQ39tNI
 
+youtube video of the latest submission: https://youtu.be/fyd8nFaRKWw
+
 
 
 ### UI screenshots
