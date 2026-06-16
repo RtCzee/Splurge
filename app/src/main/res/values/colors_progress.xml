@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Status colors -->
+    <color name="status_over_max">#E53935</color>
+    <color name="status_under_min">#FB8C00</color>
+    <color name="status_on_track">#43A047</color>
+    
+    <!-- UI element colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_border">#E0E0E0</color>
+    <color name="progress_bar_background">#F5F5F5</color>
+    <color name="divider_light">#EEEEEE</color>
+    <color name="text_secondary">#757575</color>
+    <color name="icon_secondary">#9E9E9E</color>
+</resources>

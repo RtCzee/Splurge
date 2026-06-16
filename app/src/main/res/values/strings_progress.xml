@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Progress visualization strings -->
+    <string name="expand_details">Expand details</string>
+    <string name="spending_status_icon">Spending status icon</string>
+    <string name="progress_min_goal_label">Minimum Goal: %s</string>
+    <string name="progress_max_goal_label">Maximum Goal: %s</string>
+    <string name="progress_remaining_label">Remaining: %s</string>
+    <string name="progress_percent_label">Progress: %d%%</string>
+    <string name="progress_visualization_title">Monthly Spending Progress</string>
+    <string name="progress_summary_label">Summary</string>
+    <string name="progress_over_count">Over Budget: %d</string>
+    <string name="progress_under_count">Under Budget: %d</string>
+    <string name="progress_on_track_count">On Track: %d</string>
+</resources>
