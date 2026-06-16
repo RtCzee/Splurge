@@ -17,5 +17,6 @@ data class UserEntity(
     val email: String,
     val passwordHash: String,
     val passwordSalt: String,
-    val createdAt: Long
+    val createdAt: Long,
+    val profilePicturePath: String? = null
 )

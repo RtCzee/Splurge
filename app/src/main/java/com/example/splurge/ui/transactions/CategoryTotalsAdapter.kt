@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.CategorySpendTotal
 import com.example.splurge.ui.common.FinanceUiFormatter
 
@@ -48,7 +49,7 @@ class CategoryTotalsAdapter : RecyclerView.Adapter<CategoryTotalsAdapter.Categor
                 item.entryCount,
                 item.entryCount
             )
-            totalAmount.text = FinanceUiFormatter.formatCurrency(item.totalAmount)
+            totalAmount.text = PrivacyPreferences(itemView.context).formatCurrency(item.totalAmount)
         }
     }
 }
