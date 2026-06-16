@@ -25,16 +25,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".FactLoadingActivity"
-            android:exported="true"
-            tools:ignore="DuplicateActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
             android:name=".ui.signup.Signup"
             android:exported="false" />
         <activity
@@ -42,13 +32,7 @@
             android:exported="false" />
         <activity
             android:name=".ui.welcome.Welcome"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:exported="true" />
         <activity
             android:name=".ui.transactions.Transactions"
             android:exported="false" />

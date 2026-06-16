@@ -10,6 +10,14 @@
     android:padding="24dp"
     android:background="#FFFFFF">
 
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_marginBottom="20dp"
+        android:contentDescription="@string/auth_logo_content_description"
+        android:scaleType="fitCenter"
+        android:src="@drawable/splurge_logo" />
+
     <TextView
         android:id="@+id/factText"
         android:layout_width="wrap_content"

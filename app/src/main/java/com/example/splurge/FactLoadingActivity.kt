@@ -5,9 +5,9 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.splurge.ui.welcome.Welcome
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.jvm.java
 
 class FactLoadingActivity : AppCompatActivity() {
 
@@ -21,7 +21,7 @@ class FactLoadingActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             delay(2500)
-            startActivity(Intent(this@FactLoadingActivity, WelcomeActivity::class.kotlin))
+            startActivity(Intent(this@FactLoadingActivity, Welcome::class.java))
             finish()
         }
     }
