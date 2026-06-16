@@ -6,6 +6,7 @@ import android.content.Intent
 import com.example.splurge.data.FinanceRepository
 import com.example.splurge.data.local.BillEntity
 import com.example.splurge.data.local.BillStatus
+import com.example.splurge.ui.common.FinanceUiFormatter
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
 
@@ -56,8 +57,9 @@ class BillReminderReceiver : BroadcastReceiver() {
             repository.updateBill(bill.clearSnooze())
         }
 
+        val dueDate = FinanceUiFormatter.parseDateOrNull(bill.dueDate) ?: return
         val daysBefore = if (isSnooze) {
-            ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(bill.dueDate)).toInt().coerceAtLeast(0)
+            ChronoUnit.DAYS.between(LocalDate.now(), dueDate).toInt().coerceAtLeast(0)
         } else {
             intent.getIntExtra(EXTRA_REMINDER_DAYS, 0)
         }

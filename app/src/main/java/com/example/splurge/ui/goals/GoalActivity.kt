@@ -18,12 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
 import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.GoalRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.ProgressUpdateResult
 import com.example.splurge.data.local.GoalEntity
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 import java.util.Locale
 
 class GoalsActivity : AppCompatActivity() {
@@ -46,14 +46,15 @@ class GoalsActivity : AppCompatActivity() {
     private lateinit var tvSummaryMessage: TextView
 
     private var currentUserId: Long = -1L
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activty_monthly_goal)  // Your actual filename with typo
+        setContentView(R.layout.activity_monthly_goal)  // Fixed typo
 
         repository = GoalRepository(this)
         authSessionManager = AuthSessionManager(this)
+        privacyPreferences = PrivacyPreferences(this)
 
         currentUserId = authSessionManager.getSignedInUserId() ?: -1L
 
@@ -128,10 +129,17 @@ class GoalsActivity : AppCompatActivity() {
             val review = repository.getMonthlyReview(currentUserId)
             if (review.totalGoals > 0) {
                 cardMonthlySummary.visibility = android.view.View.VISIBLE
-                tvAchievedCount.text = review.completed.toString()
-                tvMissedCount.text = review.missed.toString()
-                tvCompletionRate.text = String.format(Locale.US, "%.0f%%", review.successRate)
-                tvSummaryMessage.text = review.message
+                if (privacyPreferences.isHideBalancesEnabled()) {
+                    tvAchievedCount.text = getString(R.string.privacy_hidden_value)
+                    tvMissedCount.text = getString(R.string.privacy_hidden_value)
+                    tvCompletionRate.text = getString(R.string.privacy_hidden_value)
+                    tvSummaryMessage.text = getString(R.string.privacy_hidden_message)
+                } else {
+                    tvAchievedCount.text = review.completed.toString()
+                    tvMissedCount.text = review.missed.toString()
+                    tvCompletionRate.text = String.format(Locale.US, "%.0f%%", review.successRate)
+                    tvSummaryMessage.text = review.message
+                }
             }
         }
     }
@@ -252,7 +260,11 @@ class GoalsActivity : AppCompatActivity() {
         val tvEmoji = dialogView.findViewById<TextView>(R.id.tvEmoji)
 
         tvGoalName.text = goal.name
-        tvAmount.text = currencyFormat.format(goal.targetAmount)
+        tvAmount.text = if (privacyPreferences.isHideBalancesEnabled()) {
+            getString(R.string.privacy_hidden_value)
+        } else {
+            privacyPreferences.formatCurrency(goal.targetAmount)
+        }
 
         val emojis = listOf("🎉", "🏆", "🌟", "💪", "🎊", "✨")
         var index = 0

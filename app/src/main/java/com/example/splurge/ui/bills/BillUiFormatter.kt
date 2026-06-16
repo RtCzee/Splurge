@@ -2,16 +2,15 @@ package com.example.splurge.ui.bills
 
 import android.content.Context
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.BillEntity
 import com.example.splurge.data.local.BillRecurrence
 import com.example.splurge.data.local.BillStatus
 import com.example.splurge.ui.common.FinanceUiFormatter
-import java.text.NumberFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.temporal.ChronoUnit
-import java.util.Locale
 import kotlin.math.absoluteValue
 
 /**
@@ -19,11 +18,8 @@ import kotlin.math.absoluteValue
  */
 object BillUiFormatter {
 
-    private val currencyFormatter = NumberFormat.getCurrencyInstance(Locale.forLanguageTag("en-ZA"))
-
     fun formatAmount(context: Context, amount: Double?): String {
-        return amount?.let { currencyFormatter.format(it) }
-            ?: context.getString(R.string.bill_amount_not_set)
+        return PrivacyPreferences(context).formatCurrency(amount)
     }
 
     fun formatRecurrence(context: Context, recurrence: BillRecurrence): String {
@@ -50,7 +46,8 @@ object BillUiFormatter {
         }
 
         val today = LocalDate.now()
-        val dueDate = LocalDate.parse(bill.dueDate)
+        val dueDate = FinanceUiFormatter.parseDateOrNull(bill.dueDate)
+            ?: return context.getString(R.string.bill_status_active)
         val daysUntilDue = ChronoUnit.DAYS.between(today, dueDate).toInt()
 
         return when {
@@ -103,7 +100,9 @@ object BillUiFormatter {
                     )
                 }
 
-                val daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), LocalDate.parse(bill.dueDate)).toInt()
+                val dueDate = FinanceUiFormatter.parseDateOrNull(bill.dueDate)
+                    ?: return context.getString(R.string.bill_status_active)
+                val daysUntilDue = ChronoUnit.DAYS.between(LocalDate.now(), dueDate).toInt()
                 when {
                     daysUntilDue < 0 -> context.getString(R.string.bill_status_overdue)
                     daysUntilDue == 0 -> context.getString(R.string.bill_status_due_today)
@@ -119,7 +118,9 @@ object BillUiFormatter {
         return when (bill.status) {
             BillStatus.ACTIVE -> context.getString(
                 R.string.bill_due_on_value,
-                FinanceUiFormatter.formatDisplayDate(bill.dueDate)
+                FinanceUiFormatter.parseDateOrNull(bill.dueDate)?.let {
+                    FinanceUiFormatter.formatDisplayDate(it.toString())
+                } ?: bill.dueDate
             )
             BillStatus.PAID -> context.getString(
                 R.string.bill_paid_on_value,
@@ -127,7 +128,9 @@ object BillUiFormatter {
             )
             BillStatus.ARCHIVED -> context.getString(
                 R.string.bill_archived_value,
-                FinanceUiFormatter.formatDisplayDate(bill.dueDate)
+                FinanceUiFormatter.parseDateOrNull(bill.dueDate)?.let {
+                    FinanceUiFormatter.formatDisplayDate(it.toString())
+                } ?: bill.dueDate
             )
         }
     }
@@ -151,7 +154,7 @@ object BillUiFormatter {
         }
 
         val today = LocalDate.now()
-        val dueDate = LocalDate.parse(bill.dueDate)
+        val dueDate = FinanceUiFormatter.parseDateOrNull(bill.dueDate) ?: return null
         val daysUntilDue = ChronoUnit.DAYS.between(today, dueDate).toInt()
         if (daysUntilDue < 0) {
             return context.getString(

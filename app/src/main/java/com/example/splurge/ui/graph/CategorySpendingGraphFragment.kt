@@ -13,6 +13,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.AppDatabase
 import com.example.splurge.data.local.CategorySpendTotal
 import com.github.mikephil.charting.charts.BarChart
@@ -37,6 +38,7 @@ class CategorySpendingGraphFragment : Fragment() {
     private lateinit var tvEmptyState: TextView
     private lateinit var tvDateRangeDisplay: TextView
     private lateinit var tvTotalSpending: TextView
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     private var currentStartDate: String = ""
     private var currentEndDate: String = ""
@@ -72,6 +74,7 @@ class CategorySpendingGraphFragment : Fragment() {
             tvEmptyState = view.findViewById(R.id.tv_empty_state)
             tvDateRangeDisplay = view.findViewById(R.id.tv_date_range_display)
             tvTotalSpending = view.findViewById(R.id.tv_total_spending)
+            privacyPreferences = PrivacyPreferences(requireContext())
 
             setupToolbar(view)
             setupBarChart()
@@ -278,6 +281,14 @@ class CategorySpendingGraphFragment : Fragment() {
 
     private fun updateChart(categoryTotals: List<CategorySpendTotal>) {
         progressBar.visibility = View.GONE
+
+        if (privacyPreferences.isHideBalancesEnabled()) {
+            barChart.visibility = View.GONE
+            tvEmptyState.visibility = View.VISIBLE
+            tvEmptyState.text = getString(R.string.privacy_hidden_graph_message)
+            tvTotalSpending.text = getString(R.string.privacy_hidden_value)
+            return
+        }
 
         val nonZeroTotals = categoryTotals.filter { it.totalAmount > 0 }
 

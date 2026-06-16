@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
 import com.example.splurge.data.AuthSessionManager
 import com.example.splurge.data.GoalRepository
+import com.example.splurge.data.PrivacyPreferences
 import kotlinx.coroutines.launch
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,9 +25,9 @@ class GoalHistoryActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var btnBack: Button
 
-    private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("en", "ZA"))
     private val dateFormat = SimpleDateFormat("MMM yyyy", Locale.getDefault())
     private var currentUserId: Long = -1L
+    private lateinit var privacyPreferences: PrivacyPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +35,7 @@ class GoalHistoryActivity : AppCompatActivity() {
 
         repository = GoalRepository(this)
         authSessionManager = AuthSessionManager(this)
+        privacyPreferences = PrivacyPreferences(this)
 
         currentUserId = authSessionManager.getSignedInUserId() ?: -1L
 
@@ -67,11 +68,17 @@ class GoalHistoryActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val review = repository.getMonthlyReview(currentUserId)
 
-            tvMonthlySummary.text = review.message
-            tvSuccessRate.text = String.format(Locale.US, "Success Rate: %.0f%%", review.successRate)
-            tvBestCategory.text = review.bestCategory?.let { "Best Category: $it" } ?: "No completed goals yet"
+            if (privacyPreferences.isHideBalancesEnabled()) {
+                tvMonthlySummary.text = getString(R.string.privacy_hidden_message)
+                tvSuccessRate.text = getString(R.string.privacy_hidden_value)
+                tvBestCategory.text = getString(R.string.privacy_hidden_value)
+            } else {
+                tvMonthlySummary.text = review.message
+                tvSuccessRate.text = String.format(Locale.US, "Success Rate: %.0f%%", review.successRate)
+                tvBestCategory.text = review.bestCategory?.let { "Best Category: $it" } ?: "No completed goals yet"
+            }
             progressBar.max = 100
-            progressBar.progress = review.successRate.toInt()
+            progressBar.progress = if (privacyPreferences.isHideBalancesEnabled()) 0 else review.successRate.toInt()
         }
     }
 

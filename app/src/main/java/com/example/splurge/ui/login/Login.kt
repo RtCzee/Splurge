@@ -54,6 +54,19 @@ class Login : AppCompatActivity() {
                 signIn()
             }
         }
+
+        prefillEmailFromSignup()
+    }
+
+    private fun prefillEmailFromSignup() {
+        val email = intent.getStringExtra(EXTRA_PREFILL_EMAIL)?.trim().orEmpty()
+        if (email.isBlank()) {
+            return
+        }
+
+        findViewById<TextInputEditText>(R.id.inputLoginEmail).setText(email)
+        findViewById<TextInputEditText>(R.id.inputLoginPassword).requestFocus()
+        Toast.makeText(this, R.string.login_account_created_message, Toast.LENGTH_SHORT).show()
     }
 
     private fun validateForm(): Boolean {
@@ -119,5 +132,9 @@ class Login : AppCompatActivity() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+    }
+
+    companion object {
+        const val EXTRA_PREFILL_EMAIL = "extra_prefill_email"
     }
 }

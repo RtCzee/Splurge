@@ -12,6 +12,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.ui.base.BaseActivity
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -24,6 +25,7 @@ import java.time.LocalDate
  */
 class Goals : BaseActivity() {
     private lateinit var repository: FinanceRepository
+    private lateinit var privacyPreferences: PrivacyPreferences
     private lateinit var goalsAdapter: SavingsGoalsAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,6 +33,7 @@ class Goals : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_goals)
         repository = FinanceRepository.getInstance(this)
+        privacyPreferences = PrivacyPreferences(this)
         goalsAdapter = SavingsGoalsAdapter()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -70,17 +73,20 @@ class Goals : BaseActivity() {
         }
         val halfwayGoals = goals.count { it.targetAmount > 0.0 && it.currentAmount / it.targetAmount >= 0.5 }
 
-        findViewById<TextView>(R.id.total_saved_amount).text = FinanceUiFormatter.formatCurrency(totalSaved)
-        findViewById<TextView>(R.id.total_goal_amount).text = getString(
-            R.string.total_goal_amount_value,
-            FinanceUiFormatter.formatCurrency(totalTarget)
-        )
+        findViewById<TextView>(R.id.total_saved_amount).text = privacyPreferences.formatCurrency(totalSaved)
+        findViewById<TextView>(R.id.total_goal_amount).text = if (privacyPreferences.isHideBalancesEnabled()) {
+            getString(R.string.privacy_hidden_value)
+        } else {
+            getString(R.string.total_goal_amount_value, privacyPreferences.formatCurrency(totalTarget))
+        }
         findViewById<android.widget.ProgressBar>(R.id.overall_progress).apply {
             max = 100
-            progress = progressPercent
+            progress = if (privacyPreferences.isHideBalancesEnabled()) 0 else progressPercent
         }
         findViewById<TextView>(R.id.goals_summary_note).text = if (goals.isEmpty()) {
             getString(R.string.no_savings_goals_summary)
+        } else if (privacyPreferences.isHideBalancesEnabled()) {
+            getString(R.string.privacy_hidden_message)
         } else {
             getString(
                 R.string.savings_goals_summary_value,

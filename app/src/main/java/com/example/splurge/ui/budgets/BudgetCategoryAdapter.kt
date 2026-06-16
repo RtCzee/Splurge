@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.CategorySpendTotal
 import com.example.splurge.ui.common.FinanceUiFormatter
 
@@ -43,7 +44,7 @@ class BudgetCategoryAdapter : RecyclerView.Adapter<BudgetCategoryAdapter.BudgetC
         /** Binds one category total into the item view. */
         fun bind(item: CategorySpendTotal) {
             categoryName.text = item.categoryName
-            categoryAmount.text = FinanceUiFormatter.formatCurrency(item.totalAmount)
+            categoryAmount.text = PrivacyPreferences(itemView.context).formatCurrency(item.totalAmount)
             categoryEntries.text = itemView.context.resources.getQuantityString(
                 R.plurals.category_entry_count,
                 item.entryCount,
