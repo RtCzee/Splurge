@@ -18,6 +18,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.ui.base.BaseActivity
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.google.android.material.button.MaterialButton
@@ -35,6 +36,7 @@ import java.time.YearMonth
  */
 class Transactions : BaseActivity() {
     private lateinit var repository: FinanceRepository
+    private lateinit var privacyPreferences: PrivacyPreferences
     private lateinit var expenseAdapter: ExpenseAdapter
     private lateinit var categoryTotalsAdapter: CategoryTotalsAdapter
     // Default the filter to the current month so the screen opens with useful context.
@@ -70,6 +72,7 @@ class Transactions : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_transactions)
         repository = FinanceRepository.getInstance(this)
+        privacyPreferences = PrivacyPreferences(this)
         expenseAdapter = ExpenseAdapter(::showPhotoPreview)
         categoryTotalsAdapter = CategoryTotalsAdapter()
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -177,7 +180,7 @@ class Transactions : BaseActivity() {
             expenseCount,
             expenseCount
         )
-        findViewById<TextView>(R.id.period_total_amount).text = FinanceUiFormatter.formatCurrency(totalSpent)
+        findViewById<TextView>(R.id.period_total_amount).text = privacyPreferences.formatCurrency(totalSpent)
         findViewById<MaterialButton>(R.id.start_period_button).text =
             FinanceUiFormatter.formatDisplayDate(startDateValue)
         findViewById<MaterialButton>(R.id.end_period_button).text =

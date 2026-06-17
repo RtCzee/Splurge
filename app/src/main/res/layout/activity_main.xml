@@ -53,6 +53,60 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/dashboard_surface_card"
+                app:cardCornerRadius="18dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/dashboard_card_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dashboard_bills_label"
+                        android:textColor="@color/dashboard_muted_text"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/bills_summary_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:textColor="@color/dashboard_primary_text"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        tools:text="3 active bills" />
+
+                    <TextView
+                        android:id="@+id/bills_summary_note"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:textColor="@color/dashboard_muted_text"
+                        android:textSize="13sp"
+                        tools:text="Next reminder: Electricity Bill due in 3 days" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/open_bills_button"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:text="@string/open_bills_button" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 app:cardBackgroundColor="@color/dashboard_feature_card"
                 app:cardCornerRadius="20dp"
@@ -285,6 +339,47 @@
                         android:textColor="@color/dashboard_muted_text"
                         android:textSize="13sp"
                         tools:text="R 8,150.00 left from a R 12,000.00 monthly budget" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Add this after the Budget Status card -->
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/analytics_card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/dashboard_card_stroke"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="View Spending Analytics"
+                        android:textColor="@color/dashboard_primary_text"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="View Graph →"
+                        android:textColor="@color/auth_primary"
+                        android:textSize="14sp" />
 
                 </LinearLayout>
 

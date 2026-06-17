@@ -1,18 +1,23 @@
 [versions]
 agp = "9.0.1"
+#noinspection GradleDependency
 coreKtx = "1.18.0"
 junit = "4.13.2"
 junitVersion = "1.3.0"
 espressoCore = "3.7.0"
 appcompat = "1.7.1"
+#noinspection GradleDependency
 material = "1.13.0"
 activityKtx = "1.13.0"
 constraintlayout = "2.2.1"
 ksp = "2.2.10-2.0.2"
-room = "2.6.1"
+#noinspection GradleDependency
+room = "2.7.0"
 recyclerview = "1.4.0"
+#noinspection GradleDependency
 lifecycleRuntimeKtx = "2.8.7"
 desugar_jdk_libs = "2.1.5"
+activity = "1.13.0"
 
 [libraries]
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
@@ -29,6 +34,7 @@ androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

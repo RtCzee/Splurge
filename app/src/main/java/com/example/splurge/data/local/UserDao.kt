@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 
 /**
  * Room access for locally registered user accounts.
@@ -19,4 +20,13 @@ interface UserDao {
 
     @Query("SELECT * FROM users WHERE id = :userId LIMIT 1")
     fun getUserById(userId: Long): UserEntity?
+
+    @Query("SELECT profilePicturePath FROM users WHERE id = :userId LIMIT 1")
+    fun getProfilePicturePath(userId: Long): String?
+
+    @Query("UPDATE users SET profilePicturePath = :profilePicturePath WHERE id = :userId")
+    fun updateProfilePicturePath(userId: Long, profilePicturePath: String?)
+
+    @Update
+    fun updateUser(user: UserEntity)
 }

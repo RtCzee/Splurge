@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.splurge.R
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.data.local.TransactionListItem
 import com.example.splurge.data.local.TransactionType
 import com.example.splurge.ui.common.FinanceUiFormatter
@@ -54,7 +55,7 @@ class TransactionAdapter(
 
         fun bind(item: TransactionListItem) {
             descriptionValue.text = item.description
-            amountValue.text = FinanceUiFormatter.formatCurrency(item.amount)
+            amountValue.text = PrivacyPreferences(itemView.context).formatCurrency(item.amount)
             categoryValue.text = item.categoryName
             dateValue.text = FinanceUiFormatter.formatDisplayDate(item.date)
             

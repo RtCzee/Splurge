@@ -11,6 +11,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.splurge.R
 import com.example.splurge.data.FinanceRepository
+import com.example.splurge.data.PrivacyPreferences
 import com.example.splurge.ui.base.BaseActivity
 import com.example.splurge.ui.common.FinanceUiFormatter
 import com.google.android.material.button.MaterialButton
@@ -26,6 +27,7 @@ import kotlin.math.max
  */
 class Budgets : BaseActivity() {
     private lateinit var repository: FinanceRepository
+    private lateinit var privacyPreferences: PrivacyPreferences
     private lateinit var categoryAdapter: BudgetCategoryAdapter
     // The screen always works against the current month rather than an arbitrary period.
     private val currentMonth: YearMonth = YearMonth.now()
@@ -35,6 +37,7 @@ class Budgets : BaseActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_budgets)
         repository = FinanceRepository.getInstance(this)
+        privacyPreferences = PrivacyPreferences(this)
         categoryAdapter = BudgetCategoryAdapter()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -108,17 +111,21 @@ class Budgets : BaseActivity() {
 
         findViewById<TextView>(R.id.goal_month_label).text =
             FinanceUiFormatter.formatMonthLabel(currentMonth)
-        findViewById<TextView>(R.id.total_budget_amount).text =
-            FinanceUiFormatter.formatCurrency(maximumGoal)
-        findViewById<TextView>(R.id.minimum_goal_amount).text = getString(
-            R.string.minimum_goal_value,
-            FinanceUiFormatter.formatCurrency(minimumGoal)
-        )
+        findViewById<TextView>(R.id.total_budget_amount).text = privacyPreferences.formatCurrency(maximumGoal)
+        findViewById<TextView>(R.id.minimum_goal_amount).text = if (privacyPreferences.isHideBalancesEnabled()) {
+            getString(R.string.privacy_hidden_value)
+        } else {
+            getString(R.string.minimum_goal_value, privacyPreferences.formatCurrency(minimumGoal))
+        }
         findViewById<TextView>(R.id.remaining_budget).text = if (maximumGoal > 0.0) {
-            getString(
-                R.string.remaining_before_max_value,
-                FinanceUiFormatter.formatCurrency(remainingBeforeMax)
-            )
+            if (privacyPreferences.isHideBalancesEnabled()) {
+                getString(R.string.privacy_hidden_value)
+            } else {
+                getString(
+                    R.string.remaining_before_max_value,
+                    privacyPreferences.formatCurrency(remainingBeforeMax)
+                )
+            }
         } else {
             getString(R.string.no_maximum_goal_message)
         }
@@ -140,6 +147,9 @@ class Budgets : BaseActivity() {
         minimumGoal: Double,
         maximumGoal: Double
     ): String {
+        if (privacyPreferences.isHideBalancesEnabled()) {
+            return getString(R.string.privacy_hidden_message)
+        }
         return when {
             maximumGoal <= 0.0 && minimumGoal <= 0.0 ->
                 getString(R.string.set_budget_goals_prompt)
